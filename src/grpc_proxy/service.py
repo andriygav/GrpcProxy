@@ -21,11 +21,11 @@ class LoadBalancer(object):
     def __init__(self, adresses=[]):
         self.adresses = adresses
         
-    def sent(self, request):
+    def sent(self, request, context, service, method):
         raise NotImplementedError
         
 class PeekFirst(LoadBalancer):
-    def sent(self, request, service, method):
+    def sent(self, request, context, service, method):
         acc_host = None
         response = None
         for host in self.adresses:
@@ -39,7 +39,7 @@ class PeekFirst(LoadBalancer):
             
             try:
                 logging.info(f'{host} request')
-                response = stub.future(request).result(None)
+                response = stub.future(request, context).result(None)
             except grpc.RpcError as e:
                 logging.info(f'{host}: {e.code()}')
             else:
@@ -49,7 +49,6 @@ class PeekFirst(LoadBalancer):
             
 def proxy_method(request, context, service, method, config):
     metadata = dict(context.invocation_metadata())
-    logging.info(str(metadata))
     
     routing = config
     if 'match' in config:
@@ -64,7 +63,7 @@ def proxy_method(request, context, service, method, config):
             if is_ok:
                 routing = item
     
-    host, response = PeekFirst(routing['hosts']).sent(request, service, method)
+    host, response = PeekFirst(routing['hosts']).sent(request, context, service, method)
     
     logging.info(f'redirect to {host}')
     logging.info('response data.')
