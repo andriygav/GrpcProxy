@@ -21,11 +21,11 @@ class LoadBalancer(object):
     def __init__(self, adresses=[]):
         self.adresses = adresses
         
-    def sent(self, request, context, service, method):
+    def sent(self, request, metadata, service, method):
         raise NotImplementedError
         
 class PeekFirst(LoadBalancer):
-    def sent(self, request, context, service, method):
+    def sent(self, request, metadata, service, method):
         acc_host = None
         response = None
         for host in self.adresses:
@@ -39,7 +39,7 @@ class PeekFirst(LoadBalancer):
             
             try:
                 logging.info(f'{host} request')
-                response = stub.future(request, context).result(None)
+                response = stub.future(request, metadata=metadata).result(None)
             except grpc.RpcError as e:
                 logging.info(f'{host}: {e.code()}')
             else:
@@ -63,7 +63,8 @@ def proxy_method(request, context, service, method, config):
             if is_ok:
                 routing = item
     
-    host, response = PeekFirst(routing['hosts']).sent(request, context, service, method)
+    host, response = PeekFirst(routing['hosts']).sent(
+        request, context.invocation_metadata(), service, method)
     
     logging.info(f'redirect to {host}')
     logging.info('response data.')
@@ -88,7 +89,7 @@ def serve(config, setup):
 
     server = grpc.server(
         futures.ThreadPoolExecutor(
-            max_workers=int(2)
+            max_workers=int(config['service']['max workers'])
         ),
         options=[('grpc.max_send_message_length', MAX_MSG_LENGTH),
                  ('grpc.max_message_length', MAX_MSG_LENGTH),
