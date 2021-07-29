@@ -1,0 +1,5 @@
+grpcio==1.39.0
+grpcio-reflection==1.39.0
+grpcio-tools==1.39.0
+pyaml==20.4.0
+configobj==5.0.6

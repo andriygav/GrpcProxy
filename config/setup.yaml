@@ -1,0 +1,28 @@
+- name: somename
+  service: example.v1.ExampleService
+  methods:
+  - name: ExampleMethod
+    match:
+    - name: someheaderkey
+      headers:
+        lang-pair:
+          exact: someheadervalue
+      hosts:
+      - address-one
+      - address-two
+      loadBalancer:
+        type: peek_first
+    match:
+    - name: someheaderkey
+      headers:
+        lang-pair:
+          exact: someotherheadervalue
+      hosts:
+      - address-three
+      - address-four
+      loadBalancer:
+        type: peek_first
+    hosts:
+    - default-adress
+    loadBalancer:
+      type: peek_first
