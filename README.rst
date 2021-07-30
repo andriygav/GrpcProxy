@@ -35,7 +35,7 @@ Example of setup file
           - address-one
           - address-two
           loadBalancer:
-            type: peek_first
+            type: peak_first
         match:
         - name: someothername
           headers:
@@ -45,12 +45,12 @@ Example of setup file
           - address-three
           - address-four
           loadBalancer:
-            type: peek_first
+            type: peak_first
         hosts:
         - default-adress
         loadBalancer:
-          type: peek_first
+          type: peak_first
 
 - Firstly, need to specify the `service` and `method` for routing discovery (for example we are using `example.v1.ExampleService` and `ExampleMethod` respectively).
 - Secondly, need to specify headers information for specific routing (we are using key: value pairs from header such as `someheaderkey` and `someheadervalue`).
-- Thirdly, need to specify hosts for routing and type of use it (now only `peek_first` and random available).
+- Thirdly, need to specify hosts for routing and type of use it (now only `peak_first` and random available).
