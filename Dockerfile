@@ -1,4 +1,4 @@
-FROM python:3.8.9-slim
+FROM python:3.8.11-alpine3.13
 
 COPY ./src/requirements.txt /tmp/requirements.txt
 
