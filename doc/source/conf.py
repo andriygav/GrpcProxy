@@ -39,7 +39,8 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest',
               'sphinx_rtd_theme']
 
 autodoc_mock_imports = ['grpc', 'yaml', 
-                        'prometheus_client', 'python_grpc_prometheus']
+                        'prometheus_client', 'python_grpc_prometheus', 
+                        'configobj']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
