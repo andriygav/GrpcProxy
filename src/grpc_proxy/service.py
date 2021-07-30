@@ -42,7 +42,7 @@ _BALANCER_NAME_TO_CLASS = {
 }
 
 REQUEST_TIME = Summary('proxy_method_seconds', 'Time spent processing proxy')
-NUMBER_OF_PROCESSES = Gauge('proxy_method_seconds', 'Time spent processing proxy')
+NUMBER_OF_PROCESSES = Gauge('proxy_method_processes', 'Time spent processing proxy')
 
 @REQUEST_TIME.time()
 def proxy_method(request, context, service, method, config):
