@@ -3,26 +3,26 @@
   methods:
   - name: ExampleMethod
     match:
-    - name: someheaderkey
+    - name: somename
       headers:
-        lang-pair:
+        someheaderkey:
           exact: someheadervalue
       hosts:
       - address-one
       - address-two
       loadBalancer:
-        type: peek_first
+        type: peak_first
     match:
-    - name: someheaderkey
+    - name: someothername
       headers:
-        lang-pair:
+        someheaderkey:
           exact: someotherheadervalue
       hosts:
       - address-three
       - address-four
       loadBalancer:
-        type: peek_first
+        type: peak_first
     hosts:
     - default-adress
     loadBalancer:
-      type: peek_first
+      type: peak_first

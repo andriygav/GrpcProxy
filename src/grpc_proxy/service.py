@@ -3,6 +3,7 @@ import time
 import yaml
 import argparse
 import logging
+import random
 from functools import partial
 from concurrent import futures
 from grpc_reflection.v1alpha import reflection
@@ -10,24 +11,45 @@ from grpc_reflection.v1alpha import reflection
 from configobj import ConfigObj
 
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s.%(msecs)03d %(levelname)s:%(funcName)s:%(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
-
-MAX_MSG_LENGTH = 100 * 1024 * 1024
-_ONE_DAY_IN_SECONDS = 60 * 60 * 24
-
 class LoadBalancer(object):
     def __init__(self, adresses=[]):
         self.adresses = adresses
         
     def sent(self, request, metadata, service, method):
         raise NotImplementedError
-        
-class PeekFirst(LoadBalancer):
+
+class RandomChoice(LoadBalancer):
     def sent(self, request, metadata, service, method):
         acc_host = None
         response = None
+        host = random.choice(self.adresses)
+
+        channel = grpc.insecure_channel(
+            host, options=[('grpc.max_send_message_length', MAX_MSG_LENGTH),
+                           ('grpc.max_message_length', MAX_MSG_LENGTH),
+                           ('grpc.max_receive_message_length', MAX_MSG_LENGTH)],)
+        
+        stub = channel.unary_unary(
+            f'/{service}/{method}', request_serializer=None, response_deserializer=None)
+        
+        try:
+            logging.info(f'{host} request')
+            response = stub.future(request, metadata=metadata).result(None)
+        except grpc.RpcError as e:
+            logging.info(f'{host}: {e.code()}')
+            raise e
+        else:
+            acc_host = host
+
+        return acc_host, response
+        
+class PeakFirst(LoadBalancer):
+    def sent(self, request, metadata, service, method):
+        acc_host = None
+        response = None
+
+        last_error = None
+
         for host in self.adresses:
             channel = grpc.insecure_channel(
                 host, options=[('grpc.max_send_message_length', MAX_MSG_LENGTH),
@@ -42,11 +64,16 @@ class PeekFirst(LoadBalancer):
                 response = stub.future(request, metadata=metadata).result(None)
             except grpc.RpcError as e:
                 logging.info(f'{host}: {e.code()}')
+                last_error = e
             else:
                 acc_host = host
                 break
+
+        if acc_host is None:
+            raise last_error
+
         return acc_host, response
-            
+
 def proxy_method(request, context, service, method, config):
     metadata = dict(context.invocation_metadata())
     
@@ -63,7 +90,7 @@ def proxy_method(request, context, service, method, config):
             if is_ok:
                 routing = item
     
-    host, response = PeekFirst(routing['hosts']).sent(
+    host, response = _BALANCER_NAME_TO_CLASS[routing['loadBalancer']['type']](routing['hosts']).sent(
         request, context.invocation_metadata(), service, method)
     
     logging.info(f'redirect to {host}')
@@ -121,6 +148,17 @@ def start():
 
     serve(config, setup)
 
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s.%(msecs)03d %(levelname)s:%(funcName)s:%(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+
+MAX_MSG_LENGTH = 100 * 1024 * 1024
+_ONE_DAY_IN_SECONDS = 60 * 60 * 24
+
+_BALANCER_NAME_TO_CLASS = {
+    'peak_first': PeakFirst,
+    'random': RandomChoice
+}
 
 if __name__ == '__main__':
     start()
