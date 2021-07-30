@@ -191,7 +191,7 @@
 <span class="kn">import</span> <span class="nn">grpc</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">configobj</span> <span class="kn">import</span> <span class="n">ConfigObj</span>
-<span class="kn">from</span> <span class="nn">prometheus_client</span> <span class="kn">import</span> <span class="n">start_http_server</span><span class="p">,</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">Summary</span>
+<span class="kn">from</span> <span class="nn">prometheus_client</span> <span class="kn">import</span> <span class="n">start_http_server</span><span class="p">,</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">Summary</span><span class="p">,</span> <span class="n">Gauge</span>
 <span class="kn">from</span> <span class="nn">python_grpc_prometheus.prometheus_server_interceptor</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">PromServerInterceptor</span><span class="p">,)</span>
 
@@ -213,6 +213,7 @@
 <span class="p">}</span>
 
 <span class="n">REQUEST_TIME</span> <span class="o">=</span> <span class="n">Summary</span><span class="p">(</span><span class="s1">&#39;proxy_method_seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;Time spent processing proxy&#39;</span><span class="p">)</span>
+<span class="n">NUMBER_OF_PROCESSES</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;proxy_method_seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;Time spent processing proxy&#39;</span><span class="p">)</span>
 
 <span class="nd">@REQUEST_TIME</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 <span class="k">def</span> <span class="nf">proxy_method</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
@@ -235,28 +236,35 @@
 <span class="sd">    :return: Responce from the target services.</span>
 <span class="sd">    :rtype: binary</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">())</span>
-    
-    <span class="n">routing</span> <span class="o">=</span> <span class="n">config</span>
-    <span class="k">if</span> <span class="s1">&#39;match&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;match&#39;</span><span class="p">]:</span>
-            <span class="n">is_ok</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="s1">&#39;headers&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
-                <span class="n">is_ok</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">]:</span>
-                    <span class="k">if</span> <span class="n">header</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metadata</span> \
-                       <span class="ow">or</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">][</span><span class="n">header</span><span class="p">][</span><span class="s1">&#39;exact&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">header</span><span class="p">]:</span>
-                        <span class="n">is_ok</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="n">is_ok</span><span class="p">:</span>
-                <span class="n">routing</span> <span class="o">=</span> <span class="n">item</span>
-    
-    <span class="n">host</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">_BALANCER_NAME_TO_CLASS</span><span class="p">[</span><span class="n">routing</span><span class="p">[</span><span class="s1">&#39;loadBalancer&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]](</span>
-        <span class="n">routing</span><span class="p">[</span><span class="s1">&#39;hosts&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sent</span><span class="p">(</span>
-        <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">(),</span> <span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
-    
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;redirect to </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;response data.&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">NUMBER_OF_PROCESSES</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
+        
+        <span class="n">metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">())</span>
+
+        <span class="n">routing</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="k">if</span> <span class="s1">&#39;match&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;match&#39;</span><span class="p">]:</span>
+                <span class="n">is_ok</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="s1">&#39;headers&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                    <span class="n">is_ok</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">header</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metadata</span> \
+                           <span class="ow">or</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">][</span><span class="n">header</span><span class="p">][</span><span class="s1">&#39;exact&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">header</span><span class="p">]:</span>
+                            <span class="n">is_ok</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">is_ok</span><span class="p">:</span>
+                    <span class="n">routing</span> <span class="o">=</span> <span class="n">item</span>
+
+        <span class="n">host</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">_BALANCER_NAME_TO_CLASS</span><span class="p">[</span><span class="n">routing</span><span class="p">[</span><span class="s1">&#39;loadBalancer&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]](</span>
+            <span class="n">routing</span><span class="p">[</span><span class="s1">&#39;hosts&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sent</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">(),</span> <span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;redirect to </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;response data.&#39;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">NUMBER_OF_PROCESSES</span><span class="o">.</span><span class="n">dec</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">response</span>
     
 <div class="viewcode-block" id="add_to_server"><a class="viewcode-back" href="../../service.html#grpc_proxy.service.add_to_server">[docs]</a><span class="k">def</span> <span class="nf">add_to_server</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">server</span><span class="p">):</span>
