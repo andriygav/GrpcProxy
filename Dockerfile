@@ -2,7 +2,7 @@ FROM python:3.8.11-alpine3.13
 
 COPY ./src/requirements.txt /tmp/requirements.txt
 
-RUN cat /tmp/requirements.txt | xargs --no-run-if-empty -l pip install \
+RUN pip install -r /tmp/requirements.txt \
     && rm -rf /tmp/* /root/.cache/*
 
 COPY ./src /app/
