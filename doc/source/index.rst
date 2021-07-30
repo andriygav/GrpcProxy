@@ -19,6 +19,13 @@ Welcome to Sample Size Lib!
    
    example.rst
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Packages:
+
+   balancer.rst
+   service.rst
+
 
 
 Indices and tables
