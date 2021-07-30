@@ -20,7 +20,7 @@ from concurrent import futures
 import grpc
 import yaml
 from configobj import ConfigObj
-from prometheus_client import start_http_server, Counter
+from prometheus_client import start_http_server, Counter, Summary
 from python_grpc_prometheus.prometheus_server_interceptor import (
     PromServerInterceptor,)
 
