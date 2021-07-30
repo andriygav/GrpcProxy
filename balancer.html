@@ -189,29 +189,23 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="grpc_proxy.balancer.LoadBalancer.sent">
 <span class="sig-name descname"><span class="pre">sent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#LoadBalancer.sent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.LoadBalancer.sent" title="Permalink to this definition">¶</a></dt>
-<dd><p>A method for process given request.
-:param request: Binary request without deserialisation.
-:type request: binary
-:param metadata: A gRPC service metadata (included http2 headers).</p>
-<blockquote>
-<div><p>For more details read 
-<a class="reference external" href="https://grpc.github.io/grpc/python/grpc.html">https://grpc.github.io/grpc/python/grpc.html</a>.</p>
-</div></blockquote>
+<dd><p>A method for process given request.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>binary</em>) – Binary request without deserialisation.</p></li>
+<li><p><strong>metadata</strong> – A gRPC service metadata (included http2 headers). 
+For more details read 
+<a class="reference external" href="https://grpc.github.io/grpc/python/grpc.html">https://grpc.github.io/grpc/python/grpc.html</a>.</p></li>
 <li><p><strong>service</strong> (<em>str</em>) – A name of discovery service.</p></li>
-<li><p><strong>method</strong> – A name of method in discovered service.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – A name of method in discovered service.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>method: str</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Return tuple of host and responce from the target services.</p>
 </dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Return tuple of host and responce from the target services.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(str, binary)</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str, binary)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -225,29 +219,23 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="grpc_proxy.balancer.PeakFirst.sent">
 <span class="sig-name descname"><span class="pre">sent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#PeakFirst.sent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.PeakFirst.sent" title="Permalink to this definition">¶</a></dt>
-<dd><p>A method for process given request.
-:param request: Binary request without deserialisation.
-:type request: binary
-:param metadata: A gRPC service metadata (included http2 headers).</p>
-<blockquote>
-<div><p>For more details read 
-<a class="reference external" href="https://grpc.github.io/grpc/python/grpc.html">https://grpc.github.io/grpc/python/grpc.html</a>.</p>
-</div></blockquote>
+<dd><p>A method for process given request.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>binary</em>) – Binary request without deserialisation.</p></li>
+<li><p><strong>metadata</strong> – A gRPC service metadata (included http2 headers). 
+For more details read 
+<a class="reference external" href="https://grpc.github.io/grpc/python/grpc.html">https://grpc.github.io/grpc/python/grpc.html</a>.</p></li>
 <li><p><strong>service</strong> (<em>str</em>) – A name of discovery service.</p></li>
-<li><p><strong>method</strong> – A name of method in discovered service.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – A name of method in discovered service.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>method: str</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Return tuple of host and responce from the target services.</p>
 </dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Return tuple of host and responce from the target services.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(str, binary)</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str, binary)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -261,29 +249,23 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="grpc_proxy.balancer.RandomChoice.sent">
 <span class="sig-name descname"><span class="pre">sent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#RandomChoice.sent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.RandomChoice.sent" title="Permalink to this definition">¶</a></dt>
-<dd><p>A method for process given request.
-:param request: Binary request without deserialisation.
-:type request: binary
-:param metadata: A gRPC service metadata (included http2 headers).</p>
-<blockquote>
-<div><p>For more details read 
-<a class="reference external" href="https://grpc.github.io/grpc/python/grpc.html">https://grpc.github.io/grpc/python/grpc.html</a>.</p>
-</div></blockquote>
+<dd><p>A method for process given request.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>binary</em>) – Binary request without deserialisation.</p></li>
+<li><p><strong>metadata</strong> – A gRPC service metadata (included http2 headers). 
+For more details read 
+<a class="reference external" href="https://grpc.github.io/grpc/python/grpc.html">https://grpc.github.io/grpc/python/grpc.html</a>.</p></li>
 <li><p><strong>service</strong> (<em>str</em>) – A name of discovery service.</p></li>
-<li><p><strong>method</strong> – A name of method in discovered service.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – A name of method in discovered service.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>method: str</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Return tuple of host and responce from the target services.</p>
 </dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Return tuple of host and responce from the target services.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(str, binary)</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str, binary)</p>
 </dd>
 </dl>
 </dd></dl>
