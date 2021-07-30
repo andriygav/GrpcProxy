@@ -44,6 +44,7 @@ _BALANCER_NAME_TO_CLASS = {
 def proxy_method(request, context, service, method, config):
     r'''
     Prototype for gRPC proxy method.
+
     :param request: Binary request without deserialisation.
     :type request: binary
     :param context: A gRPC service contex. 
@@ -53,7 +54,7 @@ def proxy_method(request, context, service, method, config):
     :param service: A name of discovery service.
     :type service: str
     :param method: A name of method in discovered service.
-    :type: method: str
+    :type method: str
     :param config: A config dictionary with all information. 
         Must contain field 'hosts' and 'loadBalancer'.
     :type config: dict
@@ -87,6 +88,7 @@ def proxy_method(request, context, service, method, config):
 def add_to_server(config, server):
     r'''
     Generate proxy service handlers from the given config.
+    
     :param config: Configuration dictionary from the setup.yaml file.
     :type config: dict
     :param server: AInitialised server without handlers.

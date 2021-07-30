@@ -24,6 +24,7 @@ class LoadBalancer(object):
     def __init__(self, adresses=[]):
         r'''
         Constructor method.
+
         :param adresses: A list of hosts for routing.
         :type adresses: list
         '''
@@ -32,6 +33,7 @@ class LoadBalancer(object):
     def sent(self, request, metadata, service, method):
         r'''
         A method for process given request.
+
         :param request: Binary request without deserialisation.
         :type request: binary
         :param metadata: A gRPC service metadata (included http2 headers). 
@@ -41,7 +43,7 @@ class LoadBalancer(object):
         :param service: A name of discovery service.
         :type service: str
         :param method: A name of method in discovered service.
-        :type: method: str
+        :type method: str
         :return: Return tuple of host and responce from the target services.
         :rtype: (str, binary)
         '''
@@ -54,6 +56,7 @@ class RandomChoice(LoadBalancer):
     def sent(self, request, metadata, service, method):
         r'''
         A method for process given request.
+
         :param request: Binary request without deserialisation.
         :type request: binary
         :param metadata: A gRPC service metadata (included http2 headers). 
@@ -63,7 +66,7 @@ class RandomChoice(LoadBalancer):
         :param service: A name of discovery service.
         :type service: str
         :param method: A name of method in discovered service.
-        :type: method: str
+        :type method: str
         :return: Return tuple of host and responce from the target services.
         :rtype: (str, binary)
         '''
@@ -100,6 +103,7 @@ class PeakFirst(LoadBalancer):
     def sent(self, request, metadata, service, method):
         r'''
         A method for process given request.
+
         :param request: Binary request without deserialisation.
         :type request: binary
         :param metadata: A gRPC service metadata (included http2 headers). 
@@ -109,7 +113,7 @@ class PeakFirst(LoadBalancer):
         :param service: A name of discovery service.
         :type service: str
         :param method: A name of method in discovered service.
-        :type: method: str
+        :type method: str
         :return: Return tuple of host and responce from the target services.
         :rtype: (str, binary)
         '''
