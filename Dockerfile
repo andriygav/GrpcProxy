@@ -1,9 +1,9 @@
-FROM python:3.8.11-alpine3.13
+FROM python:3.8.9-slim
 
 COPY ./src/requirements.txt /tmp/requirements.txt
 
-RUN pip install -r /tmp/requirements.txt \
-    && rm -rf /tmp/* /root/.cache/*
+RUN cat /tmp/requirements.txt | xargs --no-run-if-empty -l pip install \
+     && rm -rf /tmp/* /root/.cache/*
 
 COPY ./src /app/
 
