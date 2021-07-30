@@ -41,6 +41,9 @@ _BALANCER_NAME_TO_CLASS = {
     'random': RandomChoice
 }
 
+REQUEST_TIME = Summary('proxy_method_seconds', 'Time spent processing proxy')
+
+@REQUEST_TIME.time()
 def proxy_method(request, context, service, method, config):
     r'''
     Prototype for gRPC proxy method.
