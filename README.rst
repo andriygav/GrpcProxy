@@ -2,6 +2,21 @@
 GrpcProxy
 #########
 
+|test| |docs| |docker|
+
+.. |test| image:: https://github.com/andriygav/GrpcProxy/workflows/test/badge.svg
+    :target: https://github.com/andriygav/GrpcProxy/tree/master
+    :alt: Test status
+
+.. |docs| image:: https://github.com/andriygav/GrpcProxy/workflows/docs/badge.svg
+    :target: https://andriygav.github.io/GrpcProxy/
+    :alt: Docs status
+
+    
+.. |docker| image:: https://img.shields.io/docker/v/andriygav/grpc-proxy
+    :target: https://hub.docker.com/repository/docker/andriygav/grpc-proxy
+    :alt: Docker Hub Status
+
 Basic information
 =================
 
