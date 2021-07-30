@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 '''
 The :mod:`grpc_proxy.service` contains classes:
+
 - :class:`grpc_proxy.service.LoadBalancer`
 - :class:`grpc_proxy.service.RandomChoice`
 - :class:`grpc_proxy.service.PeakFirst`

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 '''
 The :mod:`grpc_proxy.service` contains functions:
+
 - :func:`grpc_proxy.service.proxy_method`
 - :func:`grpc_proxy.service.add_to_server`
 - :func:`grpc_proxy.service.start`
