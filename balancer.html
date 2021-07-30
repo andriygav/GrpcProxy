@@ -174,8 +174,120 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="balancer">
-<h1>Balancer<a class="headerlink" href="#balancer" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-grpc_proxy.balancer">
+<span id="balancer"></span><h1>Balancer<a class="headerlink" href="#module-grpc_proxy.balancer" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">grpc_proxy.service</span></code> contains classes:
+- <code class="xref py py-class docutils literal notranslate"><span class="pre">grpc_proxy.service.LoadBalancer</span></code>
+- <code class="xref py py-class docutils literal notranslate"><span class="pre">grpc_proxy.service.RandomChoice</span></code>
+- <code class="xref py py-class docutils literal notranslate"><span class="pre">grpc_proxy.service.PeakFirst</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_proxy.balancer.LoadBalancer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_proxy.balancer.</span></span><span class="sig-name descname"><span class="pre">LoadBalancer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adresses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#LoadBalancer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.LoadBalancer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all load nalancer classes.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_proxy.balancer.LoadBalancer.sent">
+<span class="sig-name descname"><span class="pre">sent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#LoadBalancer.sent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.LoadBalancer.sent" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method for process given request.
+:param request: Binary request without deserialisation.
+:type request: binary
+:param metadata: A gRPC service metadata (included http2 headers).</p>
+<blockquote>
+<div><p>For more details read 
+<a class="reference external" href="https://grpc.github.io/grpc/python/grpc.html">https://grpc.github.io/grpc/python/grpc.html</a>.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service</strong> (<em>str</em>) – A name of discovery service.</p></li>
+<li><p><strong>method</strong> – A name of method in discovered service.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Type</dt>
+<dd class="field-even"><p>method: str</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Return tuple of host and responce from the target services.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(str, binary)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_proxy.balancer.PeakFirst">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_proxy.balancer.</span></span><span class="sig-name descname"><span class="pre">PeakFirst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adresses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#PeakFirst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.PeakFirst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of peak first balancer with random host choosing.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_proxy.balancer.PeakFirst.sent">
+<span class="sig-name descname"><span class="pre">sent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#PeakFirst.sent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.PeakFirst.sent" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method for process given request.
+:param request: Binary request without deserialisation.
+:type request: binary
+:param metadata: A gRPC service metadata (included http2 headers).</p>
+<blockquote>
+<div><p>For more details read 
+<a class="reference external" href="https://grpc.github.io/grpc/python/grpc.html">https://grpc.github.io/grpc/python/grpc.html</a>.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service</strong> (<em>str</em>) – A name of discovery service.</p></li>
+<li><p><strong>method</strong> – A name of method in discovered service.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Type</dt>
+<dd class="field-even"><p>method: str</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Return tuple of host and responce from the target services.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(str, binary)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_proxy.balancer.RandomChoice">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_proxy.balancer.</span></span><span class="sig-name descname"><span class="pre">RandomChoice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adresses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#RandomChoice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.RandomChoice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of random balancer with random host choosing.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_proxy.balancer.RandomChoice.sent">
+<span class="sig-name descname"><span class="pre">sent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#RandomChoice.sent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.RandomChoice.sent" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method for process given request.
+:param request: Binary request without deserialisation.
+:type request: binary
+:param metadata: A gRPC service metadata (included http2 headers).</p>
+<blockquote>
+<div><p>For more details read 
+<a class="reference external" href="https://grpc.github.io/grpc/python/grpc.html">https://grpc.github.io/grpc/python/grpc.html</a>.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service</strong> (<em>str</em>) – A name of discovery service.</p></li>
+<li><p><strong>method</strong> – A name of method in discovered service.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Type</dt>
+<dd class="field-even"><p>method: str</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Return tuple of host and responce from the target services.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(str, binary)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
