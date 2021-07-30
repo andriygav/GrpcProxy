@@ -20,7 +20,7 @@ from concurrent import futures
 import grpc
 import yaml
 from configobj import ConfigObj
-from prometheus_client import start_http_server, Counter, Summary
+from prometheus_client import start_http_server, Counter, Summary, Gauge
 from python_grpc_prometheus.prometheus_server_interceptor import (
     PromServerInterceptor,)
 
@@ -42,6 +42,7 @@ _BALANCER_NAME_TO_CLASS = {
 }
 
 REQUEST_TIME = Summary('proxy_method_seconds', 'Time spent processing proxy')
+NUMBER_OF_PROCESSES = Gauge('proxy_method_seconds', 'Time spent processing proxy')
 
 @REQUEST_TIME.time()
 def proxy_method(request, context, service, method, config):
@@ -64,28 +65,35 @@ def proxy_method(request, context, service, method, config):
     :return: Responce from the target services.
     :rtype: binary
     '''
-    metadata = dict(context.invocation_metadata())
-    
-    routing = config
-    if 'match' in config:
-        for item in config['match']:
-            is_ok = True
-            if 'headers' not in item:
-                is_ok = False
-            else:
-                for header in item['headers']:
-                    if header not in metadata \
-                       or item['headers'][header]['exact'] != metadata[header]:
-                        is_ok = False
-            if is_ok:
-                routing = item
-    
-    host, response = _BALANCER_NAME_TO_CLASS[routing['loadBalancer']['type']](
-        routing['hosts']).sent(
-        request, context.invocation_metadata(), service, method)
-    
-    logging.info(f'redirect to {host}')
-    logging.info('response data.')
+    try:
+        NUMBER_OF_PROCESSES.inc()
+        
+        metadata = dict(context.invocation_metadata())
+
+        routing = config
+        if 'match' in config:
+            for item in config['match']:
+                is_ok = True
+                if 'headers' not in item:
+                    is_ok = False
+                else:
+                    for header in item['headers']:
+                        if header not in metadata \
+                           or item['headers'][header]['exact'] != metadata[header]:
+                            is_ok = False
+                if is_ok:
+                    routing = item
+
+        host, response = _BALANCER_NAME_TO_CLASS[routing['loadBalancer']['type']](
+            routing['hosts']).sent(
+            request, context.invocation_metadata(), service, method)
+
+        logging.info(f'redirect to {host}')
+        logging.info('response data.')
+    except:
+        pass
+    finally:
+        NUMBER_OF_PROCESSES.dec()
     return response
     
 def add_to_server(config, server):
