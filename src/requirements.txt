@@ -3,3 +3,5 @@ grpcio-reflection==1.39.0
 grpcio-tools==1.39.0
 pyaml==20.4.0
 configobj==5.0.6
+prometheus-client==0.8.0
+python_grpc_prometheus==0.2.0

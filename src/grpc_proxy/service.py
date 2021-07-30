@@ -1,80 +1,40 @@
-import grpc
 import time
-import yaml
-import argparse
 import logging
-import random
+import argparse
 from functools import partial
 from concurrent import futures
-from grpc_reflection.v1alpha import reflection
 
+import grpc
+import yaml
 from configobj import ConfigObj
+from prometheus_client import start_http_server, Counter
+from python_grpc_prometheus.prometheus_server_interceptor import (
+    PromServerInterceptor,)
 
+from .balancer import RandomChoice, PeakFirst
 
-class LoadBalancer(object):
-    def __init__(self, adresses=[]):
-        self.adresses = adresses
-        
-    def sent(self, request, metadata, service, method):
-        raise NotImplementedError
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s.%(msecs)03d %(levelname)s:%(funcName)s:%(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+    )
 
-class RandomChoice(LoadBalancer):
-    def sent(self, request, metadata, service, method):
-        acc_host = None
-        response = None
-        host = random.choice(self.adresses)
+MAX_MSG_LENGTH = 100 * 1024 * 1024
+_ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-        channel = grpc.insecure_channel(
-            host, options=[('grpc.max_send_message_length', MAX_MSG_LENGTH),
-                           ('grpc.max_message_length', MAX_MSG_LENGTH),
-                           ('grpc.max_receive_message_length', MAX_MSG_LENGTH)],)
-        
-        stub = channel.unary_unary(
-            f'/{service}/{method}', request_serializer=None, response_deserializer=None)
-        
-        try:
-            logging.info(f'{host} request')
-            response = stub.future(request, metadata=metadata).result(None)
-        except grpc.RpcError as e:
-            logging.info(f'{host}: {e.code()}')
-            raise e
-        else:
-            acc_host = host
-
-        return acc_host, response
-        
-class PeakFirst(LoadBalancer):
-    def sent(self, request, metadata, service, method):
-        acc_host = None
-        response = None
-
-        last_error = None
-
-        for host in self.adresses:
-            channel = grpc.insecure_channel(
-                host, options=[('grpc.max_send_message_length', MAX_MSG_LENGTH),
-                               ('grpc.max_message_length', MAX_MSG_LENGTH),
-                               ('grpc.max_receive_message_length', MAX_MSG_LENGTH)],)
-            
-            stub = channel.unary_unary(
-                f'/{service}/{method}', request_serializer=None, response_deserializer=None)
-            
-            try:
-                logging.info(f'{host} request')
-                response = stub.future(request, metadata=metadata).result(None)
-            except grpc.RpcError as e:
-                logging.info(f'{host}: {e.code()}')
-                last_error = e
-            else:
-                acc_host = host
-                break
-
-        if acc_host is None:
-            raise last_error
-
-        return acc_host, response
+# available balancer type
+_BALANCER_NAME_TO_CLASS = {
+    'peak_first': PeakFirst,
+    'random': RandomChoice
+}
 
 def proxy_method(request, context, service, method, config):
+    r"""
+    Prototype for gRPC proxy method
+    :param request: binary request without deserialisation
+    :type request: binary
+    :param context: 
+    """
     metadata = dict(context.invocation_metadata())
     
     routing = config
@@ -85,12 +45,14 @@ def proxy_method(request, context, service, method, config):
                 is_ok = False
             else:
                 for header in item['headers']:
-                    if header not in metadata or item['headers'][header]['exact'] != metadata[header]:
+                    if header not in metadata \
+                       or item['headers'][header]['exact'] != metadata[header]:
                         is_ok = False
             if is_ok:
                 routing = item
     
-    host, response = _BALANCER_NAME_TO_CLASS[routing['loadBalancer']['type']](routing['hosts']).sent(
+    host, response = _BALANCER_NAME_TO_CLASS[routing['loadBalancer']['type']](
+        routing['hosts']).sent(
         request, context.invocation_metadata(), service, method)
     
     logging.info(f'redirect to {host}')
@@ -104,28 +66,30 @@ def add_to_server(config, server):
         rpc_method_handlers = dict()
         for item2 in item1['methods']:
             method = item2['name']
-            func = partial(proxy_method, service=service, method=method, config=item2)
+            func = partial(
+                proxy_method, service=service, method=method, config=item2)
             rpc_method_handlers[method] = grpc.unary_unary_rpc_method_handler(
                 func, request_deserializer=None, response_serializer=None)
-        services_hanldlers.append(grpc.method_handlers_generic_handler(service, rpc_method_handlers))
+        services_hanldlers.append(
+            grpc.method_handlers_generic_handler(service, rpc_method_handlers))
     server.add_generic_rpc_handlers(services_hanldlers)
-        
 
 def serve(config, setup):
     logging.warning('initialize service')
 
     server = grpc.server(
         futures.ThreadPoolExecutor(
-            max_workers=int(config['service']['max workers'])
+            max_workers=int(config['service']['max workers']),
         ),
         options=[('grpc.max_send_message_length', MAX_MSG_LENGTH),
                  ('grpc.max_message_length', MAX_MSG_LENGTH),
-                 ('grpc.max_receive_message_length', MAX_MSG_LENGTH)]
+                 ('grpc.max_receive_message_length', MAX_MSG_LENGTH)],
+        interceptors=(PromServerInterceptor(),) 
     )
     add_to_server(setup, server)
-
     server.add_insecure_port(config['service']['port'])
 
+    start_http_server(int(config['prometheus']['port']))
     server.start()
 
     try:
@@ -147,18 +111,6 @@ def start():
     	setup = yaml.safe_load(f)
 
     serve(config, setup)
-
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s.%(msecs)03d %(levelname)s:%(funcName)s:%(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
-
-MAX_MSG_LENGTH = 100 * 1024 * 1024
-_ONE_DAY_IN_SECONDS = 60 * 60 * 24
-
-_BALANCER_NAME_TO_CLASS = {
-    'peak_first': PeakFirst,
-    'random': RandomChoice
-}
 
 if __name__ == '__main__':
     start()

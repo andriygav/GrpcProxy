@@ -1,0 +1,66 @@
+name: test
+on: [push, pull_request]
+
+jobs:
+  pytest:
+    name: pytest
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: [3.8]
+        
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+        
+      - name: Install Dependencies
+        run: |
+          pip install -U pytest
+          pip install -U pytest-cov
+          pip install -U -r src/requirements.txt
+          
+      - name: Testing
+        run: |
+          PYTHONPATH=src/ pytest tests/ --cov=src/grpc_proxy --cov-report=xml
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Build DockerFile
+        run: |
+          docker build . -f ./Dockerfile -t grpc-proxy:latest
+
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: [3.7]
+        
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+        
+      - name: Install Dependencies
+        run: |
+          pip install -U sphinx
+          pip install -U sphinx-rtd-theme
+          
+      - name: Build Docs
+        run: |
+          sphinx-build -b html ./doc/source/ public
+          touch public/.nojekyll

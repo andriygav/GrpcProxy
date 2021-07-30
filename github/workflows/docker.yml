@@ -1,0 +1,32 @@
+name: Publish Docker image
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Build DockerFile
+        run: |
+          docker build . -f ./Dockerfile -t grpc-proxy:latest
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v1
+        with:
+          context: .
+          dockerfile: Dockerfile
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          repository: andriygav/grpc-proxy
+          tags: latest
