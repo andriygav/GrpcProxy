@@ -213,7 +213,7 @@
 <span class="p">}</span>
 
 <span class="n">REQUEST_TIME</span> <span class="o">=</span> <span class="n">Summary</span><span class="p">(</span><span class="s1">&#39;proxy_method_seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;Time spent processing proxy&#39;</span><span class="p">)</span>
-<span class="n">NUMBER_OF_PROCESSES</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;proxy_method_seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;Time spent processing proxy&#39;</span><span class="p">)</span>
+<span class="n">NUMBER_OF_PROCESSES</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;proxy_method_processes&#39;</span><span class="p">,</span> <span class="s1">&#39;Time spent processing proxy&#39;</span><span class="p">)</span>
 
 <span class="nd">@REQUEST_TIME</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 <span class="k">def</span> <span class="nf">proxy_method</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
