@@ -138,7 +138,7 @@ def start():
     add_to_server(setup, server)
     server.add_insecure_port(config['service']['port'])
     logging.info(
-        f'service start on port={config["service"]["port"]}'
+        f'service start on port={config["service"]["port"]} '
         f'and working with {config["service"]["max workers"]} threads')
 
     start_http_server(int(config['prometheus']['port']))
