@@ -71,26 +71,22 @@ class RandomChoice(LoadBalancer):
         :return: Return tuple of host and responce from the target services.
         :rtype: (str, binary)
         '''
-        acc_host = None
-        response = None
         host = random.choice(self.adresses)
 
         channel = grpc.insecure_channel(host, options=self.options)
-        
         stub = channel.unary_unary(
             f'/{service}/{method}', 
             request_serializer=None, 
             response_deserializer=None)
         
+        logging.info(f'{host} request')
         try:
-            logging.info(f'{host} request')
             response = stub.future(request, metadata=metadata).result(None)
+            return host, response
         except grpc.RpcError as e:
             logging.info(f'{host}: {e.code()}')
             raise e
         
-        acc_host = host
-        return acc_host, response
         
 class PickFirst(LoadBalancer):
     r'''
@@ -113,30 +109,21 @@ class PickFirst(LoadBalancer):
         :return: Return tuple of host and responce from the target services.
         :rtype: (str, binary)
         '''
-        acc_host = None
-        response = None
-
-        last_error = None
+        last_error = grpc.RpcError(grpc.StatusCode.UNAVAILABLE, "proxy: no endpoints found")
 
         for host in self.adresses:
             channel = grpc.insecure_channel(host, options=self.options)
-            
             stub = channel.unary_unary(
                 f'/{service}/{method}', 
                 request_serializer=None, 
                 response_deserializer=None)
             
+            logging.info(f'{host} request')
             try:
-                logging.info(f'{host} request')
                 response = stub.future(request, metadata=metadata).result(None)
+                return host, response
             except grpc.RpcError as e:
                 logging.info(f'{host}: {e.code()}')
                 last_error = e
-            else:
-                acc_host = host
-                break
 
-        if acc_host is None:
-            raise last_error
-
-        return acc_host, response
+        raise last_error
