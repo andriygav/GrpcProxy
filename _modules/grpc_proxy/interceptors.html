@@ -217,8 +217,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
             <span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">is_ok</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">service</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">minimum_grpc_method_path_items</span><span class="p">]</span>
-            <span class="n">is_ok</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">),</span> <span class="n">is_ok</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="kc">True</span>
         
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_ok</span> <span class="ow">or</span> <span class="n">service</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">continuation</span><span class="p">(</span><span class="n">handler_call_details</span><span class="p">)</span>
