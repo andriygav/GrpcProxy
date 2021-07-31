@@ -18,7 +18,6 @@ from prometheus_client import Summary, Gauge
 from .balancer import RandomChoice, PickFirst
 
 MAX_MSG_LENGTH = 100 * 1024 * 1024
-_ONE_DAY_IN_SECONDS = 60 * 60 * 2
 
 # available balancer type
 _BALANCER_NAME_TO_CLASS = {
