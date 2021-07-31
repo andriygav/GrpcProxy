@@ -45,8 +45,7 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         if len(parts) < 3:
             service, method, is_ok = '', '', False
         else:
-            service, method = parts[1:minimum_grpc_method_path_items]
-            is_ok = True
+            (service, method, *_), is_ok = parts[1:], True
         
         if not is_ok or service not in mapping:
             return continuation(handler_call_details)
