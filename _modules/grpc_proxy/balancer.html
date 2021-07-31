@@ -201,19 +201,65 @@
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Base class for all load nalancer classes.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adresses</span><span class="o">=</span><span class="p">[],</span> <span class="n">options</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                 <span class="n">service</span><span class="p">,</span> 
+                 <span class="n">method</span><span class="p">,</span> 
+                 <span class="n">adresses</span> <span class="o">=</span><span class="p">[],</span> 
+                 <span class="n">options</span>  <span class="o">=</span><span class="p">[],</span> 
+                 <span class="n">metadata</span> <span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Constructor method.</span>
 
+<span class="sd">        :param service: A name of discovery service.</span>
+<span class="sd">        :type service: str</span>
+<span class="sd">        :param method: A name of method in discovered service.</span>
+<span class="sd">        :type method: str</span>
 <span class="sd">        :param adresses: A list of hosts for routing.</span>
 <span class="sd">        :type adresses: list</span>
 <span class="sd">        :param options: A list of parameters for gRPC channel.</span>
 <span class="sd">        :type options: list</span>
+<span class="sd">        :param metadata: A metadata for the service. </span>
+<span class="sd">            A dictionary with request and response type.</span>
+<span class="sd">            Default request and response has &#39;unary&#39; type.</span>
+<span class="sd">        :type metadata: dict</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;request&#39;</span><span class="p">:</span> <span class="s1">&#39;unary&#39;</span><span class="p">,</span> <span class="s1">&#39;response&#39;</span><span class="p">:</span> <span class="s1">&#39;unary&#39;</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adresses</span> <span class="o">=</span> <span class="n">adresses</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
-        
-<div class="viewcode-block" id="LoadBalancer.sent"><a class="viewcode-back" href="../../balancer.html#grpc_proxy.balancer.LoadBalancer.sent">[docs]</a>    <span class="k">def</span> <span class="nf">sent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">service</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+
+    <span class="k">def</span> <span class="nf">_get_stub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        A method for generate stub for given host.</span>
+
+<span class="sd">        :param host: A host for stub generation</span>
+<span class="sd">        :type host: str</span>
+<span class="sd">        :return: A connection stub.</span>
+<span class="sd">        :rtype: ???</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;request&#39;</span><span class="p">]</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">request</span> <span class="o">==</span> <span class="s1">&#39;unary&#39;</span> <span class="ow">and</span> <span class="n">response</span> <span class="o">==</span> <span class="s1">&#39;unary&#39;</span><span class="p">:</span>
+            <span class="n">stub</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">unary_unary</span>
+        <span class="k">elif</span> <span class="n">request</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span> <span class="ow">and</span> <span class="n">response</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span><span class="p">:</span>
+            <span class="n">stub</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">stream_stream</span>
+        <span class="k">elif</span> <span class="n">request</span> <span class="o">==</span> <span class="s1">&#39;unary&#39;</span> <span class="ow">and</span> <span class="n">response</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span><span class="p">:</span>
+            <span class="n">stub</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">unary_stream</span>
+        <span class="k">elif</span> <span class="n">request</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span> <span class="ow">and</span> <span class="n">response</span> <span class="o">==</span> <span class="s1">&#39;unary&#39;</span><span class="p">:</span>
+            <span class="n">stub</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">stream_unary</span>
+
+        <span class="k">return</span> <span class="n">stub</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> 
+            <span class="n">request_serializer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+            <span class="n">response_deserializer</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LoadBalancer.sent"><a class="viewcode-back" href="../../balancer.html#grpc_proxy.balancer.LoadBalancer.sent">[docs]</a>    <span class="k">def</span> <span class="nf">sent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        A method for process given request.</span>
 
@@ -223,13 +269,8 @@
 <span class="sd">            For more details read </span>
 <span class="sd">            https://grpc.github.io/grpc/python/grpc.html.</span>
 <span class="sd">        :type metadata: tuple</span>
-<span class="sd">        :param service: A name of discovery service.</span>
-<span class="sd">        :type service: str</span>
-<span class="sd">        :param method: A name of method in discovered service.</span>
-<span class="sd">        :type method: str</span>
 <span class="sd">        :return: Return tuple of host and responce from the target services.</span>
 <span class="sd">        :rtype: (str, binary)</span>
-
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
@@ -237,7 +278,7 @@
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Implementation of random balancer with random host choosing.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-<div class="viewcode-block" id="RandomChoice.sent"><a class="viewcode-back" href="../../balancer.html#grpc_proxy.balancer.RandomChoice.sent">[docs]</a>    <span class="k">def</span> <span class="nf">sent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomChoice.sent"><a class="viewcode-back" href="../../balancer.html#grpc_proxy.balancer.RandomChoice.sent">[docs]</a>    <span class="k">def</span> <span class="nf">sent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        A method for process given request.</span>
 
@@ -247,10 +288,6 @@
 <span class="sd">            For more details read </span>
 <span class="sd">            https://grpc.github.io/grpc/python/grpc.html.</span>
 <span class="sd">        :type metadata: tuple</span>
-<span class="sd">        :param service: A name of discovery service.</span>
-<span class="sd">        :type service: str</span>
-<span class="sd">        :param method: A name of method in discovered service.</span>
-<span class="sd">        :type method: str</span>
 <span class="sd">        :return: Return tuple of host and responce from the target services.</span>
 <span class="sd">        :rtype: (str, binary)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -258,12 +295,7 @@
             <span class="k">raise</span> <span class="n">GrpcProxyNoHostError</span><span class="p">()</span>
 
         <span class="n">host</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adresses</span><span class="p">)</span>
-
-        <span class="n">channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
-        <span class="n">stub</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">unary_unary</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> 
-            <span class="n">request_serializer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-            <span class="n">response_deserializer</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">stub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_stub</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
         
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s1"> request&#39;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -289,10 +321,6 @@
 <span class="sd">            For more details read </span>
 <span class="sd">            https://grpc.github.io/grpc/python/grpc.html.</span>
 <span class="sd">        :type metadata: tuple</span>
-<span class="sd">        :param service: A name of discovery service.</span>
-<span class="sd">        :type service: str</span>
-<span class="sd">        :param method: A name of method in discovered service.</span>
-<span class="sd">        :type method: str</span>
 <span class="sd">        :return: Return tuple of host and responce from the target services.</span>
 <span class="sd">        :rtype: (str, binary)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -300,11 +328,7 @@
             <span class="k">raise</span> <span class="n">GrpcProxyNoHostError</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adresses</span><span class="p">:</span>
-            <span class="n">channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
-            <span class="n">stub</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">unary_unary</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> 
-                <span class="n">request_serializer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-                <span class="n">response_deserializer</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">stub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_stub</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
             
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s1"> request&#39;</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>

@@ -230,6 +230,20 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">proxy_method</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">proxy_method</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_rpc_method_handler</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return specific function for the given service type.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">request</span> <span class="o">==</span> <span class="s1">&#39;unary&#39;</span> <span class="ow">and</span> <span class="n">response</span> <span class="o">==</span> <span class="s1">&#39;unary&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">grpc</span><span class="o">.</span><span class="n">unary_unary_rpc_method_handler</span>
+        <span class="k">elif</span> <span class="n">request</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span> <span class="ow">and</span> <span class="n">response</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">grpc</span><span class="o">.</span><span class="n">stream_stream_rpc_method_handler</span>
+        <span class="k">elif</span> <span class="n">request</span> <span class="o">==</span> <span class="s1">&#39;unary&#39;</span> <span class="ow">and</span> <span class="n">response</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">grpc</span><span class="o">.</span><span class="n">unary_stream_rpc_method_handler</span>
+        <span class="k">elif</span> <span class="n">request</span> <span class="o">==</span> <span class="s1">&#39;stream&#39;</span> <span class="ow">and</span> <span class="n">response</span> <span class="o">==</span> <span class="s1">&#39;unary&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">grpc</span><span class="o">.</span><span class="n">stream_unary_rpc_method_handler</span>
+
 <div class="viewcode-block" id="ProxyInterceptor.intercept_service"><a class="viewcode-back" href="../../interceptors.html#grpc_proxy.interceptors.ProxyInterceptor.intercept_service">[docs]</a>    <span class="k">def</span> <span class="nf">intercept_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">continuation</span><span class="p">,</span> <span class="n">handler_call_details</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Interceptor method for generate handler.</span>
@@ -248,12 +262,16 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_ok</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">continuation</span><span class="p">(</span><span class="n">handler_call_details</span><span class="p">)</span>
         
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proxy_method</span><span class="p">,</span>
                        <span class="n">service</span><span class="o">=</span><span class="n">service</span><span class="p">,</span>
                        <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
-                       <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+                       <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">grpc</span><span class="o">.</span><span class="n">unary_unary_rpc_method_handler</span><span class="p">(</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span> <span class="s1">&#39;request&#39;</span><span class="p">:</span>  <span class="s1">&#39;unary&#39;</span><span class="p">,</span> 
+                                    <span class="s1">&#39;response&#39;</span><span class="p">:</span> <span class="s1">&#39;unary&#39;</span><span class="p">}}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rpc_method_handler</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">])(</span>
             <span class="n">func</span><span class="p">,</span> <span class="n">request_deserializer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">response_serializer</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div></div>
 
 <span class="k">def</span> <span class="nf">_fixer</span><span class="p">(</span><span class="n">wrapper</span><span class="p">):</span>
@@ -304,7 +322,11 @@
                 <span class="n">routing</span> <span class="o">=</span> <span class="n">item</span>
 
         <span class="n">host</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">_BALANCER_NAME_TO_CLASS</span><span class="p">[</span><span class="n">routing</span><span class="p">[</span><span class="s1">&#39;loadBalancer&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]](</span>
-            <span class="n">routing</span><span class="p">[</span><span class="s1">&#39;hosts&#39;</span><span class="p">],</span> <span class="n">options</span><span class="p">)</span><span class="o">.</span><span class="n">sent</span><span class="p">(</span>
+            <span class="n">service</span><span class="p">,</span> 
+            <span class="n">method</span><span class="p">,</span> 
+            <span class="n">routing</span><span class="p">[</span><span class="s1">&#39;hosts&#39;</span><span class="p">],</span> 
+            <span class="n">options</span><span class="p">,</span> 
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sent</span><span class="p">(</span>
             <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">(),</span> <span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;success redirect to </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
