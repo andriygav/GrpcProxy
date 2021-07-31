@@ -99,7 +99,9 @@ class RandomChoice(LoadBalancer):
             return host, response
         except grpc.RpcError as e:
             logging.info(f'{host}: {e.code()}')
-            raise e
+            error = e
+
+        raise error
 
 class PickFirst(LoadBalancer):
     r'''
