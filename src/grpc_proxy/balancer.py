@@ -14,6 +14,17 @@ import grpc
 import logging
 import random
 
+class GrpcProxyNoHostError(grpc.RpcError):
+    def __init__(self):
+        self._code = grpc.StatusCode.UNIMPLEMENTED
+        self._details = "GrpcProxy: no hosts found for proxying."
+
+    def code(self):
+        return self._code
+    
+    def details(self):
+        return self._details
+
 class LoadBalancer(object):
     r'''
     Base class for all load nalancer classes.
@@ -72,7 +83,7 @@ class RandomChoice(LoadBalancer):
         :rtype: (str, binary)
         '''
         if not self.adresses:
-            raise grpc.RpcError(grpc.StatusCode.UNAVAILABLE, "proxy: no endpoints found")
+            raise GrpcProxyNoHostError()
 
         host = random.choice(self.adresses)
 
@@ -89,8 +100,7 @@ class RandomChoice(LoadBalancer):
         except grpc.RpcError as e:
             logging.info(f'{host}: {e.code()}')
             raise e
-        
-        
+
 class PickFirst(LoadBalancer):
     r'''
     Implementation of pick first balancer with random host choosing.
@@ -113,7 +123,7 @@ class PickFirst(LoadBalancer):
         :rtype: (str, binary)
         '''
         if not self.adresses:
-            raise grpc.RpcError(grpc.StatusCode.UNAVAILABLE, "proxy: no endpoints found")
+            raise GrpcProxyNoHostError()
 
         for host in self.adresses:
             channel = grpc.insecure_channel(host, options=self.options)
