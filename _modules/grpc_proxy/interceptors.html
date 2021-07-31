@@ -306,7 +306,7 @@
     <span class="k">except</span> <span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">context</span><span class="o">.</span><span class="n">set_code</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">code</span><span class="p">())</span>
         <span class="n">context</span><span class="o">.</span><span class="n">set_details</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">details</span><span class="p">())</span>
-        <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="n">NUMBER_OF_PROCESSES</span><span class="o">.</span><span class="n">dec</span><span class="p">()</span></div>
 </pre></div>
