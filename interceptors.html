@@ -182,6 +182,11 @@
 <li><p><a class="reference internal" href="#grpc_proxy.interceptors.proxy_method" title="grpc_proxy.interceptors.proxy_method"><code class="xref py py-func docutils literal notranslate"><span class="pre">grpc_proxy.interceptors.proxy_method()</span></code></a></p></li>
 </ul>
 <dl class="py class">
+<dt class="sig sig-object py" id="grpc_proxy.interceptors.GrpcProxyNoRuleError">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_proxy.interceptors.</span></span><span class="sig-name descname"><span class="pre">GrpcProxyNoRuleError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/interceptors.html#GrpcProxyNoRuleError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.interceptors.GrpcProxyNoRuleError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="grpc_proxy.interceptors.ProxyInterceptor">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_proxy.interceptors.</span></span><span class="sig-name descname"><span class="pre">ProxyInterceptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/interceptors.html#ProxyInterceptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.interceptors.ProxyInterceptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>gRPC interceptor for initialise proxy.</p>
@@ -215,7 +220,8 @@ For more details read
 <li><p><strong>service</strong> (<em>str</em>) – A name of discovery service.</p></li>
 <li><p><strong>method</strong> (<em>str</em>) – A name of method in discovered service.</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – A config dictionary with all information. 
-Must contain field ‘hosts’ and ‘loadBalancer’.</p></li>
+Must contain field ‘hosts’ and ‘loadBalancer’.
+If None raise GrpcProxyNoRuleError.</p></li>
 <li><p><strong>options</strong> (<em>list</em>) – A list of parameters for gRPC channel.</p></li>
 </ul>
 </dd>
