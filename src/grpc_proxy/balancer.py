@@ -71,6 +71,9 @@ class RandomChoice(LoadBalancer):
         :return: Return tuple of host and responce from the target services.
         :rtype: (str, binary)
         '''
+        if not self.adresses:
+            raise grpc.RpcError(grpc.StatusCode.UNAVAILABLE, "proxy: no endpoints found")
+
         host = random.choice(self.adresses)
 
         channel = grpc.insecure_channel(host, options=self.options)
@@ -109,7 +112,8 @@ class PickFirst(LoadBalancer):
         :return: Return tuple of host and responce from the target services.
         :rtype: (str, binary)
         '''
-        last_error = grpc.RpcError(grpc.StatusCode.UNAVAILABLE, "proxy: no endpoints found")
+        if not self.adresses:
+            raise grpc.RpcError(grpc.StatusCode.UNAVAILABLE, "proxy: no endpoints found")
 
         for host in self.adresses:
             channel = grpc.insecure_channel(host, options=self.options)
@@ -124,6 +128,6 @@ class PickFirst(LoadBalancer):
                 return host, response
             except grpc.RpcError as e:
                 logging.info(f'{host}: {e.code()}')
-                last_error = e
+                error = e
 
-        raise last_error
+        raise error
