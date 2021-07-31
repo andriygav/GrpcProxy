@@ -155,7 +155,7 @@ def proxy_method(request, context, service, method, config, options):
             routing['hosts'], 
             options, 
             config['metadata']).sent(
-            request, context.invocation_metadata(), service, method)
+            request, context.invocation_metadata())
 
         logging.info(f'success redirect to {host}')
         return response
