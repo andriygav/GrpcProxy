@@ -219,12 +219,12 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">),</span> <span class="n">is_ok</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="kc">True</span>
         
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_ok</span> <span class="ow">or</span> <span class="n">service</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_ok</span> <span class="ow">or</span> <span class="n">service</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">continuation</span><span class="p">(</span><span class="n">handler_call_details</span><span class="p">)</span>
 
         <span class="n">func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">proxy_method</span><span class="p">,</span>
-                       <span class="n">service</span><span class="o">=</span><span class="n">grpc_service</span><span class="p">,</span>
-                       <span class="n">method</span><span class="o">=</span><span class="n">grpc_method</span><span class="p">,</span>
+                       <span class="n">service</span><span class="o">=</span><span class="n">service</span><span class="p">,</span>
+                       <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
                        <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">service</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">grpc</span><span class="o">.</span><span class="n">unary_unary_rpc_method_handler</span><span class="p">(</span>
