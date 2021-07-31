@@ -39,7 +39,7 @@ class LoadBalancer(object):
         :param metadata: A gRPC service metadata (included http2 headers). 
             For more details read 
             https://grpc.github.io/grpc/python/grpc.html.
-        :type metadata: ???
+        :type metadata: tuple
         :param service: A name of discovery service.
         :type service: str
         :param method: A name of method in discovered service.
@@ -62,7 +62,7 @@ class RandomChoice(LoadBalancer):
         :param metadata: A gRPC service metadata (included http2 headers). 
             For more details read 
             https://grpc.github.io/grpc/python/grpc.html.
-        :type metadata: ???
+        :type metadata: tuple
         :param service: A name of discovery service.
         :type service: str
         :param method: A name of method in discovered service.
@@ -109,7 +109,7 @@ class PickFirst(LoadBalancer):
         :param metadata: A gRPC service metadata (included http2 headers). 
             For more details read 
             https://grpc.github.io/grpc/python/grpc.html.
-        :type metadata: ???
+        :type metadata: tuple
         :param service: A name of discovery service.
         :type service: str
         :param method: A name of method in discovered service.
