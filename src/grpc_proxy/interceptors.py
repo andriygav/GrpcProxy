@@ -133,6 +133,7 @@ def proxy_method(request, context, service, method, config, options):
         return response
     except grpc.RpcError as e:
         context.set_code(e.code())
+        context.set_details(e.details())
         return None
     finally:
         NUMBER_OF_PROCESSES.dec()
