@@ -12,7 +12,6 @@ import time
 import json
 import logging
 import argparse
-from functools import partial
 from concurrent import futures
 
 import grpc

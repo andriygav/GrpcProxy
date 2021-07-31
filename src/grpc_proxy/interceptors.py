@@ -9,6 +9,9 @@ The :mod:`grpc_proxy.interceptors` contains classes and functions:
 from __future__ import print_function
 __docformat__ = 'restructuredtext'
 
+import logging
+from functools import partial
+
 import grpc
 from prometheus_client import Summary, Gauge
 
