@@ -139,7 +139,7 @@ class PickFirst(LoadBalancer):
     r'''
     Implementation of pick first balancer with random host choosing.
     '''
-    def sent(self, request, metadata, service, method):
+    def sent(self, request, metadata):
         r'''
         A method for process given request.
 
