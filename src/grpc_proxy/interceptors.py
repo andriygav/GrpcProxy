@@ -58,6 +58,20 @@ class ProxyInterceptor(grpc.ServerInterceptor):
 
         self.proxy_method = partial(proxy_method, options=options)
 
+    @staticmethod
+    def _get_rpc_method_handler(request, response):
+        r'''
+        Return specific function for the given service type.
+        '''
+        if request == 'unary' and response == 'unary':
+            return grpc.unary_unary_rpc_method_handler
+        elif request == 'stream' and response == 'stream':
+            return grpc.stream_stream_rpc_method_handler
+        elif request == 'unary' and response == 'stream':
+            return grpc.unary_stream_rpc_method_handler
+        elif request == 'stream' and response == 'unary':
+            return grpc.stream_unary_rpc_method_handler
+
     def intercept_service(self, continuation, handler_call_details):
         r'''
         Interceptor method for generate handler.
@@ -76,12 +90,16 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         if not is_ok:
             return continuation(handler_call_details)
         
+        config = self.config.get(service, None)
         func = partial(self.proxy_method,
                        service=service,
                        method=method,
-                       config=self.config.get(service, None))
+                       config=config)
 
-        return grpc.unary_unary_rpc_method_handler(
+        if config is None:
+            config = {'metadata': { 'request':  'unary', 
+                                    'response': 'unary'}}
+        return self._get_rpc_method_handler(**config['metadata'])(
             func, request_deserializer=None, response_serializer=None)
 
 def _fixer(wrapper):
@@ -132,7 +150,11 @@ def proxy_method(request, context, service, method, config, options):
                 routing = item
 
         host, response = _BALANCER_NAME_TO_CLASS[routing['loadBalancer']['type']](
-            routing['hosts'], options).sent(
+            service, 
+            method, 
+            routing['hosts'], 
+            options, 
+            config['metadata']).sent(
             request, context.invocation_metadata(), service, method)
 
         logging.info(f'success redirect to {host}')

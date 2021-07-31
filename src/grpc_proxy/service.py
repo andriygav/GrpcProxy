@@ -58,7 +58,9 @@ def start():
             max_workers=int(config['service']['max workers']),
         ),
         options=options,
-        interceptors=(PromServerInterceptor(), ProxyInterceptor(setup, options)) 
+        interceptors=(
+            PromServerInterceptor(), 
+            ProxyInterceptor(setup, options)) 
     )
 
     server.add_insecure_port(config['service']['port'])

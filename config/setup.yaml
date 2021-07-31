@@ -1,4 +1,7 @@
 - service: example.v1.ExampleService
+  metadata:
+    request: unary
+    response: unary
   match:
   - name: somename
     headers:

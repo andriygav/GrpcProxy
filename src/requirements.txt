@@ -1,6 +1,7 @@
 grpcio==1.39.0
 grpcio-reflection==1.39.0
 grpcio-tools==1.39.0
+yagrc==1.1.0
 pyaml==20.4.0
 configobj==5.0.6
 prometheus-client==0.8.0
