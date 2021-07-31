@@ -47,12 +47,12 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         else:
             (service, method, *_), is_ok = parts[1:], True
         
-        if not is_ok or service not in mapping:
+        if not is_ok or service not in self.config:
             return continuation(handler_call_details)
 
         func = partial(proxy_method,
-                       service=grpc_service,
-                       method=grpc_method,
+                       service=service,
+                       method=method,
                        config=self.config[service])
 
         return grpc.unary_unary_rpc_method_handler(
