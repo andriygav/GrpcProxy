@@ -31,9 +31,14 @@ NUMBER_OF_PROCESSES = Gauge('proxy_method_processes', 'Time spent processing pro
 
 class ProxyInterceptor(grpc.ServerInterceptor):
     r'''
+    gRPC interceptor for initialise proxy.
     '''
     def __init__(self, setup):
         r'''
+        Constructor method.
+        
+        :param setup: configuration file for routing
+        :type setup: dict()
         '''
         super(ProxyInterceptor, self).__init__()
 
@@ -43,6 +48,12 @@ class ProxyInterceptor(grpc.ServerInterceptor):
 
     def intercept_service(self, continuation, handler_call_details):
         r'''
+        Interceptor method for generate handler.
+        
+        :param continuation: Function for get net handler.
+        :type continuation: function
+        :param handler_call_details: Channel metainformation.
+        :type handler_call_details: grpc._server._HandlerCallDetails
         '''
         parts = handler_call_details.method.split("/")
         if len(parts) < 3:
@@ -71,7 +82,7 @@ def proxy_method(request, context, service, method, config):
     :param context: A gRPC service contex. 
         For more details read 
         https://grpc.github.io/grpc/python/grpc.html#service-side-context.
-    :type context: ???
+    :type context: grpc._server._Context
     :param service: A name of discovery service.
     :type service: str
     :param method: A name of method in discovered service.
