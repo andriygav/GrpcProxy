@@ -15,7 +15,6 @@ import logging
 import random
 
 MAX_MSG_LENGTH = 100 * 1024 * 1024
-_ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 class LoadBalancer(object):
     r'''
