@@ -14,20 +14,21 @@ import grpc
 import logging
 import random
 
-MAX_MSG_LENGTH = 100 * 1024 * 1024
-
 class LoadBalancer(object):
     r'''
     Base class for all load nalancer classes.
     '''
-    def __init__(self, adresses=[]):
+    def __init__(self, adresses=[], options=[]):
         r'''
         Constructor method.
 
         :param adresses: A list of hosts for routing.
         :type adresses: list
+        :param options: A list of parameters for gRPC channel.
+        :type options: list
         '''
         self.adresses = adresses
+        self.options = options
         
     def sent(self, request, metadata, service, method):
         r'''
@@ -45,6 +46,7 @@ class LoadBalancer(object):
         :type method: str
         :return: Return tuple of host and responce from the target services.
         :rtype: (str, binary)
+
         '''
         raise NotImplementedError
 
@@ -73,11 +75,7 @@ class RandomChoice(LoadBalancer):
         response = None
         host = random.choice(self.adresses)
 
-        channel = grpc.insecure_channel(
-            host, options=[
-                ('grpc.max_send_message_length',    MAX_MSG_LENGTH),
-                ('grpc.max_message_length',         MAX_MSG_LENGTH),
-                ('grpc.max_receive_message_length', MAX_MSG_LENGTH)],)
+        channel = grpc.insecure_channel(host, options=self.options)
         
         stub = channel.unary_unary(
             f'/{service}/{method}', 
@@ -122,11 +120,7 @@ class PickFirst(LoadBalancer):
         last_error = None
 
         for host in self.adresses:
-            channel = grpc.insecure_channel(
-                host, options=[
-                    ('grpc.max_send_message_length',    MAX_MSG_LENGTH),
-                    ('grpc.max_message_length',         MAX_MSG_LENGTH),
-                    ('grpc.max_receive_message_length', MAX_MSG_LENGTH)],)
+            channel = grpc.insecure_channel(host, options=self.options)
             
             stub = channel.unary_unary(
                 f'/{service}/{method}', 

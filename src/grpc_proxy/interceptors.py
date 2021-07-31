@@ -17,8 +17,6 @@ from prometheus_client import Summary, Gauge
 
 from .balancer import RandomChoice, PickFirst
 
-MAX_MSG_LENGTH = 100 * 1024 * 1024
-
 # available balancer type
 _BALANCER_NAME_TO_CLASS = {
     'pick_first': PickFirst,
@@ -32,18 +30,22 @@ class ProxyInterceptor(grpc.ServerInterceptor):
     r'''
     gRPC interceptor for initialise proxy.
     '''
-    def __init__(self, setup):
+    def __init__(self, setup, options):
         r'''
         Constructor method.
         
-        :param setup: configuration file for routing
+        :param setup: Configuration file for routing
         :type setup: dict()
+        :param options: A list of parameters for gRPC chanel.
+        :type options: list
         '''
         super(ProxyInterceptor, self).__init__()
 
         self.config = dict()
         for item in setup:
             self.config[item['service']] = item
+
+        self.proxy_method = partial(proxy_method, options=options)
 
     def intercept_service(self, continuation, handler_call_details):
         r'''
@@ -63,7 +65,7 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         if not is_ok or service not in self.config:
             return continuation(handler_call_details)
 
-        func = partial(proxy_method,
+        func = partial(self.proxy_method,
                        service=service,
                        method=method,
                        config=self.config[service])
@@ -81,7 +83,7 @@ def _fixer(wrapper):
     return decorator
 
 @_fixer(REQUEST_TIME.time())
-def proxy_method(request, context, service, method, config):
+def proxy_method(request, context, service, method, config, options):
     r'''
     Prototype for gRPC proxy method.
 
@@ -98,6 +100,8 @@ def proxy_method(request, context, service, method, config):
     :param config: A config dictionary with all information. 
         Must contain field 'hosts' and 'loadBalancer'.
     :type config: dict
+    :param options: A list of parameters for gRPC channel.
+    :type options: list
     :return: Responce from the target services.
     :rtype: binary
     '''
@@ -121,7 +125,7 @@ def proxy_method(request, context, service, method, config):
                     routing = item
 
         host, response = _BALANCER_NAME_TO_CLASS[routing['loadBalancer']['type']](
-            routing['hosts']).sent(
+            routing['hosts'], options).sent(
             request, context.invocation_metadata(), service, method)
 
         logging.info(f'redirect to {host}')

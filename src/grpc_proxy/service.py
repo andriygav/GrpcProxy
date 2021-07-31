@@ -29,8 +29,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
     )
 
-MAX_MSG_LENGTH = 100 * 1024 * 1024
-_ONE_DAY_IN_SECONDS = 60 * 60 * 2
+_ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 def start():
     r'''
@@ -43,6 +42,9 @@ def start():
     argv = vars(namespace)
 
     config = ConfigObj(infile=argv['config'], encoding='utf-8')
+    options = [(f'grpc.{key}', int(config['grpc'][key])) for key in config['grpc']]
+    logging.info(
+        f'configuration file:\n{json.dumps(config, indent=2)}')
 
     with open(argv['setup']) as f:
     	setup = yaml.safe_load(f)
@@ -50,14 +52,13 @@ def start():
     logging.info(
         f'initialize service with setup file:\n{json.dumps(setup, indent=2)}')
 
+    
     server = grpc.server(
         futures.ThreadPoolExecutor(
             max_workers=int(config['service']['max workers']),
         ),
-        options=[('grpc.max_send_message_length',    MAX_MSG_LENGTH),
-                 ('grpc.max_message_length',         MAX_MSG_LENGTH),
-                 ('grpc.max_receive_message_length', MAX_MSG_LENGTH)],
-        interceptors=(PromServerInterceptor(), ProxyInterceptor(setup)) 
+        options=options,
+        interceptors=(PromServerInterceptor(), ProxyInterceptor(setup, options)) 
     )
 
     server.add_insecure_port(config['service']['port'])
