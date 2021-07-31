@@ -243,6 +243,9 @@
 <span class="sd">        :return: Return tuple of host and responce from the target services.</span>
 <span class="sd">        :rtype: (str, binary)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">adresses</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">StatusCode</span><span class="o">.</span><span class="n">UNAVAILABLE</span><span class="p">,</span> <span class="s2">&quot;proxy: no endpoints found&quot;</span><span class="p">)</span>
+
         <span class="n">host</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adresses</span><span class="p">)</span>
 
         <span class="n">channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
@@ -281,7 +284,8 @@
 <span class="sd">        :return: Return tuple of host and responce from the target services.</span>
 <span class="sd">        :rtype: (str, binary)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">last_error</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">StatusCode</span><span class="o">.</span><span class="n">UNAVAILABLE</span><span class="p">,</span> <span class="s2">&quot;proxy: no endpoints found&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">adresses</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">StatusCode</span><span class="o">.</span><span class="n">UNAVAILABLE</span><span class="p">,</span> <span class="s2">&quot;proxy: no endpoints found&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adresses</span><span class="p">:</span>
             <span class="n">channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
@@ -296,9 +300,9 @@
                 <span class="k">return</span> <span class="n">host</span><span class="p">,</span> <span class="n">response</span>
             <span class="k">except</span> <span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">code</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="n">last_error</span> <span class="o">=</span> <span class="n">e</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="n">e</span>
 
-        <span class="k">raise</span> <span class="n">last_error</span></div></div>
+        <span class="k">raise</span> <span class="n">error</span></div></div>
 </pre></div>
 
            </div>
