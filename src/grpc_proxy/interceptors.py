@@ -143,8 +143,7 @@ def proxy_method(request, context, service, method, config, options):
             routing['hosts'], options).sent(
             request, context.invocation_metadata(), service, method)
 
-        logging.info(f'redirect to {host}')
-        logging.info('response data.')
+        logging.info(f'success redirect to {host}')
         return response
     except grpc.RpcError as e:
         context.set_code(e.code())
