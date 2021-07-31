@@ -87,7 +87,7 @@ class LoadBalancer(object):
             request_serializer=None, 
             response_deserializer=None)
 
-    def sent(self, service, method):
+    def sent(self, request, metadata):
         r'''
         A method for process given request.
 
