@@ -43,7 +43,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Changelog" href="changelog.html" />
-    <link rel="prev" title="Welcome to Sample Size Lib!" href="index.html" /> 
+    <link rel="prev" title="Welcome to gRPC proxy!" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                0.0.1
+                0.0.2
               </div>
             
           
@@ -110,6 +110,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="balancer.html">Balancer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="service.html">Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interceptors.html">Interceptors</a></li>
 </ul>
 
             
@@ -195,40 +196,36 @@
 </div>
 <div class="section" id="example-of-setup-file">
 <h2>Example of setup file<a class="headerlink" href="#example-of-setup-file" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>- name: somename
-  service: example.v1.ExampleService
-  methods:
-  - name: ExampleMethod
-    match:
-    - name: somename
-      headers:
-        someheaderkey:
-          exact: someheadervalue
-      hosts:
-      - address-one
-      - address-two
-      loadBalancer:
-        type: peak_first
-    match:
-    - name: someothername
-      headers:
-        someheaderkey:
-          exact: someotherheadervalue
-      hosts:
-      - address-three
-      - address-four
-      loadBalancer:
-        type: peak_first
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>- service: example.v1.ExampleService
+  match:
+  - name: somename
+    headers:
+      someheaderkey:
+        exact: someheadervalue
     hosts:
-    - default-adress
+    - address-one
+    - address-two
     loadBalancer:
-      type: peak_first
+      type: pick_first
+  - name: someothername
+    headers:
+      someheaderkey:
+        exact: someotherheadervalue
+    hosts:
+    - address-three
+    - address-four
+    loadBalancer:
+      type: random
+  hosts:
+  - default-adress
+  loadBalancer:
+    type: pick_first
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>Firstly, need to specify the <cite>service</cite> and <cite>method</cite> for routing discovery (for example we are using <cite>example.v1.ExampleService</cite> and <cite>ExampleMethod</cite> respectively).</p></li>
+<li><p>Firstly, need to specify the <cite>service</cite> for routing discovery (for example we are using <cite>example.v1.ExampleService</cite>).</p></li>
 <li><p>Secondly, need to specify headers information for specific routing (we are using key: value pairs from header such as <cite>someheaderkey</cite> and <cite>someheadervalue</cite>).</p></li>
-<li><p>Thirdly, need to specify hosts for routing and type of use it (now only <cite>peak_first</cite> and random available).</p></li>
+<li><p>Thirdly, need to specify hosts for routing and type of use it (now only <cite>pick_first</cite> and <cite>random</cite> available).</p></li>
 </ul>
 </div>
 </div>
@@ -240,7 +237,7 @@
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to Sample Size Lib!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to gRPC proxy!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

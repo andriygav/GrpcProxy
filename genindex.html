@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                0.0.1
+                0.0.2
               </div>
             
           
@@ -103,6 +103,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="balancer.html">Balancer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="service.html">Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interceptors.html">Interceptors</a></li>
 </ul>
 
             
@@ -176,8 +177,8 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#A"><strong>A</strong></a>
- | <a href="#G"><strong>G</strong></a>
+ <a href="#G"><strong>G</strong></a>
+ | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#P"><strong>P</strong></a>
@@ -185,14 +186,6 @@
  | <a href="#S"><strong>S</strong></a>
  
 </div>
-<h2 id="A">A</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="service.html#grpc_proxy.service.add_to_server">add_to_server() (in module grpc_proxy.service)</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -201,6 +194,13 @@
 
       <ul>
         <li><a href="balancer.html#module-grpc_proxy.balancer">module</a>
+</li>
+      </ul></li>
+      <li>
+    grpc_proxy.interceptors
+
+      <ul>
+        <li><a href="interceptors.html#module-grpc_proxy.interceptors">module</a>
 </li>
       </ul></li>
   </ul></td>
@@ -212,6 +212,14 @@
         <li><a href="service.html#module-grpc_proxy.service">module</a>
 </li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="interceptors.html#grpc_proxy.interceptors.ProxyInterceptor.intercept_service">intercept_service() (grpc_proxy.interceptors.ProxyInterceptor method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -232,6 +240,8 @@
       <ul>
         <li><a href="balancer.html#module-grpc_proxy.balancer">grpc_proxy.balancer</a>
 </li>
+        <li><a href="interceptors.html#module-grpc_proxy.interceptors">grpc_proxy.interceptors</a>
+</li>
         <li><a href="service.html#module-grpc_proxy.service">grpc_proxy.service</a>
 </li>
       </ul></li>
@@ -241,7 +251,11 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="balancer.html#grpc_proxy.balancer.PeakFirst">PeakFirst (class in grpc_proxy.balancer)</a>
+      <li><a href="balancer.html#grpc_proxy.balancer.PickFirst">PickFirst (class in grpc_proxy.balancer)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="interceptors.html#grpc_proxy.interceptors.ProxyInterceptor">ProxyInterceptor (class in grpc_proxy.interceptors)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -260,7 +274,7 @@
       <li><a href="balancer.html#grpc_proxy.balancer.LoadBalancer.sent">sent() (grpc_proxy.balancer.LoadBalancer method)</a>
 
       <ul>
-        <li><a href="balancer.html#grpc_proxy.balancer.PeakFirst.sent">(grpc_proxy.balancer.PeakFirst method)</a>
+        <li><a href="balancer.html#grpc_proxy.balancer.PickFirst.sent">(grpc_proxy.balancer.PickFirst method)</a>
 </li>
         <li><a href="balancer.html#grpc_proxy.balancer.RandomChoice.sent">(grpc_proxy.balancer.RandomChoice method)</a>
 </li>

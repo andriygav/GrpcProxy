@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Sample Size Lib!
-===========================
+Welcome to gRPC proxy!
+======================
 
 .. toctree::
    :maxdepth: 1
@@ -25,6 +25,7 @@ Welcome to Sample Size Lib!
 
    balancer.rst
    service.rst
+   interceptors.rst
 
 
 

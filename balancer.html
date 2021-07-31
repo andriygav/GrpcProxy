@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                0.0.1
+                0.0.2
               </div>
             
           
@@ -105,6 +105,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Balancer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="service.html">Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interceptors.html">Interceptors</a></li>
 </ul>
 
             
@@ -180,7 +181,7 @@
 <ul class="simple">
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">grpc_proxy.service.LoadBalancer</span></code></p></li>
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">grpc_proxy.service.RandomChoice</span></code></p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">grpc_proxy.service.PeakFirst</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">grpc_proxy.service.PickFirst</span></code></p></li>
 </ul>
 <dl class="py class">
 <dt class="sig sig-object py" id="grpc_proxy.balancer.LoadBalancer">
@@ -213,12 +214,12 @@ For more details read
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="grpc_proxy.balancer.PeakFirst">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_proxy.balancer.</span></span><span class="sig-name descname"><span class="pre">PeakFirst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adresses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#PeakFirst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.PeakFirst" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implementation of peak first balancer with random host choosing.</p>
+<dt class="sig sig-object py" id="grpc_proxy.balancer.PickFirst">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_proxy.balancer.</span></span><span class="sig-name descname"><span class="pre">PickFirst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adresses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#PickFirst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.PickFirst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of pick first balancer with random host choosing.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="grpc_proxy.balancer.PeakFirst.sent">
-<span class="sig-name descname"><span class="pre">sent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#PeakFirst.sent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.PeakFirst.sent" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="grpc_proxy.balancer.PickFirst.sent">
+<span class="sig-name descname"><span class="pre">sent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/balancer.html#PickFirst.sent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.balancer.PickFirst.sent" title="Permalink to this definition">¶</a></dt>
 <dd><p>A method for process given request.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
