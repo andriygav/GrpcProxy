@@ -26,6 +26,17 @@ _BALANCER_NAME_TO_CLASS = {
 REQUEST_TIME = Summary('proxy_method_seconds', 'Time spent processing proxy')
 NUMBER_OF_PROCESSES = Gauge('proxy_method_processes', 'Time spent processing proxy')
 
+class GrpcProxyNoRuleError(grpc.RpcError):
+    def __init__(self):
+        self._code = grpc.StatusCode.UNIMPLEMENTED
+        self._details = "GrpcProxy: rule for service is not setup."
+
+    def code(self):
+        return self._code
+    
+    def details(self):
+        return self._details
+
 class ProxyInterceptor(grpc.ServerInterceptor):
     r'''
     gRPC interceptor for initialise proxy.
@@ -62,13 +73,13 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         else:
             (service, method, *_), is_ok = parts[1:], True
         
-        if not is_ok or service not in self.config:
+        if not is_ok:
             return continuation(handler_call_details)
-
+        
         func = partial(self.proxy_method,
                        service=service,
                        method=method,
-                       config=self.config[service])
+                       config=self.config.get(service, None))
 
         return grpc.unary_unary_rpc_method_handler(
             func, request_deserializer=None, response_serializer=None)
@@ -99,6 +110,7 @@ def proxy_method(request, context, service, method, config, options):
     :type method: str
     :param config: A config dictionary with all information. 
         Must contain field 'hosts' and 'loadBalancer'.
+        If None raise GrpcProxyNoRuleError.
     :type config: dict
     :param options: A list of parameters for gRPC channel.
     :type options: list
@@ -107,6 +119,9 @@ def proxy_method(request, context, service, method, config, options):
     '''
     try:
         NUMBER_OF_PROCESSES.inc()
+        
+        if config is None:
+            raise GrpcProxyNoRuleError()
         
         metadata = dict(context.invocation_metadata())
 
