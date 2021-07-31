@@ -5,7 +5,7 @@ The :mod:`grpc_proxy.service` contains classes:
 
 - :class:`grpc_proxy.service.LoadBalancer`
 - :class:`grpc_proxy.service.RandomChoice`
-- :class:`grpc_proxy.service.PeakFirst`
+- :class:`grpc_proxy.service.PickFirst`
 '''
 from __future__ import print_function
 __docformat__ = 'restructuredtext'
@@ -96,9 +96,9 @@ class RandomChoice(LoadBalancer):
 
         return acc_host, response
         
-class PeakFirst(LoadBalancer):
+class PickFirst(LoadBalancer):
     r'''
-    Implementation of peak first balancer with random host choosing.
+    Implementation of pick first balancer with random host choosing.
     '''
     def sent(self, request, metadata, service, method):
         r'''

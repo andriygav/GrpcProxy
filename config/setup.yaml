@@ -1,28 +1,24 @@
-- name: somename
-  service: example.v1.ExampleService
-  methods:
-  - name: ExampleMethod
-    match:
-    - name: somename
-      headers:
-        someheaderkey:
-          exact: someheadervalue
-      hosts:
-      - address-one
-      - address-two
-      loadBalancer:
-        type: peak_first
-    match:
-    - name: someothername
-      headers:
-        someheaderkey:
-          exact: someotherheadervalue
-      hosts:
-      - address-three
-      - address-four
-      loadBalancer:
-        type: peak_first
+- service: example.v1.ExampleService
+  match:
+  - name: somename
+    headers:
+      someheaderkey:
+        exact: someheadervalue
     hosts:
-    - default-adress
+    - address-one
+    - address-two
     loadBalancer:
-      type: peak_first
+      type: pick_first
+  - name: someothername
+    headers:
+      someheaderkey:
+        exact: someotherheadervalue
+    hosts:
+    - address-three
+    - address-four
+    loadBalancer:
+      type: random
+  hosts:
+  - default-adress
+  loadBalancer:
+    type: pick_first

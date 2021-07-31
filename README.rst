@@ -37,35 +37,31 @@ Example of setup file
 
 .. code-block:: bash
 
-    - name: somename
-      service: example.v1.ExampleService
-      methods:
-      - name: ExampleMethod
-        match:
-        - name: somename
-          headers:
-            someheaderkey:
-              exact: someheadervalue
-          hosts:
-          - address-one
-          - address-two
-          loadBalancer:
-            type: peak_first
-        match:
-        - name: someothername
-          headers:
-            someheaderkey:
-              exact: someotherheadervalue
-          hosts:
-          - address-three
-          - address-four
-          loadBalancer:
-            type: peak_first
+    - service: example.v1.ExampleService
+      match:
+      - name: somename
+        headers:
+          someheaderkey:
+            exact: someheadervalue
         hosts:
-        - default-adress
+        - address-one
+        - address-two
         loadBalancer:
-          type: peak_first
+          type: pick_first
+      - name: someothername
+        headers:
+          someheaderkey:
+            exact: someotherheadervalue
+        hosts:
+        - address-three
+        - address-four
+        loadBalancer:
+          type: random
+      hosts:
+      - default-adress
+      loadBalancer:
+        type: pick_first
 
-- Firstly, need to specify the `service` and `method` for routing discovery (for example we are using `example.v1.ExampleService` and `ExampleMethod` respectively).
+- Firstly, need to specify the `service` for routing discovery (for example we are using `example.v1.ExampleService`).
 - Secondly, need to specify headers information for specific routing (we are using key: value pairs from header such as `someheaderkey` and `someheadervalue`).
-- Thirdly, need to specify hosts for routing and type of use it (now only `peak_first` and random available).
+- Thirdly, need to specify hosts for routing and type of use it (now only `pick_first` and `random` available).
