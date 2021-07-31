@@ -203,9 +203,14 @@
 
 <div class="viewcode-block" id="ProxyInterceptor"><a class="viewcode-back" href="../../interceptors.html#grpc_proxy.interceptors.ProxyInterceptor">[docs]</a><span class="k">class</span> <span class="nc">ProxyInterceptor</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">ServerInterceptor</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    gRPC interceptor for initialise proxy.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Constructor method.</span>
+<span class="sd">        </span>
+<span class="sd">        :param setup: configuration file for routing</span>
+<span class="sd">        :type setup: dict()</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ProxyInterceptor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -215,6 +220,12 @@
 
 <div class="viewcode-block" id="ProxyInterceptor.intercept_service"><a class="viewcode-back" href="../../interceptors.html#grpc_proxy.interceptors.ProxyInterceptor.intercept_service">[docs]</a>    <span class="k">def</span> <span class="nf">intercept_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">continuation</span><span class="p">,</span> <span class="n">handler_call_details</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Interceptor method for generate handler.</span>
+<span class="sd">        </span>
+<span class="sd">        :param continuation: Function for get net handler.</span>
+<span class="sd">        :type continuation: function</span>
+<span class="sd">        :param handler_call_details: Channel metainformation.</span>
+<span class="sd">        :type handler_call_details: grpc._server._HandlerCallDetails</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="n">handler_call_details</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
@@ -243,7 +254,7 @@
 <span class="sd">    :param context: A gRPC service contex. </span>
 <span class="sd">        For more details read </span>
 <span class="sd">        https://grpc.github.io/grpc/python/grpc.html#service-side-context.</span>
-<span class="sd">    :type context: ???</span>
+<span class="sd">    :type context: grpc._server._Context</span>
 <span class="sd">    :param service: A name of discovery service.</span>
 <span class="sd">    :type service: str</span>
 <span class="sd">    :param method: A name of method in discovered service.</span>

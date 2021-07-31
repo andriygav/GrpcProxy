@@ -184,10 +184,20 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="grpc_proxy.interceptors.ProxyInterceptor">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_proxy.interceptors.</span></span><span class="sig-name descname"><span class="pre">ProxyInterceptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/interceptors.html#ProxyInterceptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.interceptors.ProxyInterceptor" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>gRPC interceptor for initialise proxy.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="grpc_proxy.interceptors.ProxyInterceptor.intercept_service">
 <span class="sig-name descname"><span class="pre">intercept_service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">continuation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler_call_details</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/interceptors.html#ProxyInterceptor.intercept_service"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.interceptors.ProxyInterceptor.intercept_service" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Interceptor method for generate handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>continuation</strong> (<em>function</em>) – Function for get net handler.</p></li>
+<li><p><strong>handler_call_details</strong> (<em>grpc._server._HandlerCallDetails</em>) – Channel metainformation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
