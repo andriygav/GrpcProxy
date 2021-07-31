@@ -10,7 +10,7 @@ from __future__ import print_function
 __docformat__ = 'restructuredtext'
 
 import logging
-from functools import partial
+from functools import partial, wraps
 
 import grpc
 from prometheus_client import Summary, Gauge
@@ -72,7 +72,16 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         return grpc.unary_unary_rpc_method_handler(
             func, request_deserializer=None, response_serializer=None)
 
-@REQUEST_TIME.time()
+def _fixer(wrapper):
+    def decorator(f):
+        @wraps(f)
+        @wrapper
+        def func(*args, **kwargs):
+            return f(*args, **kwargs)
+        return func
+    return decorator
+
+@_fixer(REQUEST_TIME.time())
 def proxy_method(request, context, service, method, config):
     r'''
     Prototype for gRPC proxy method.
