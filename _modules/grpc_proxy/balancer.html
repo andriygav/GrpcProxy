@@ -186,6 +186,17 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">random</span>
 
+<div class="viewcode-block" id="GrpcProxyNoHostError"><a class="viewcode-back" href="../../balancer.html#grpc_proxy.balancer.GrpcProxyNoHostError">[docs]</a><span class="k">class</span> <span class="nc">GrpcProxyNoHostError</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_code</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">StatusCode</span><span class="o">.</span><span class="n">UNIMPLEMENTED</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_details</span> <span class="o">=</span> <span class="s2">&quot;GrpcProxy: no hosts found for proxying.&quot;</span>
+
+    <span class="k">def</span> <span class="nf">code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_code</span>
+    
+    <span class="k">def</span> <span class="nf">details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_details</span></div>
+
 <div class="viewcode-block" id="LoadBalancer"><a class="viewcode-back" href="../../balancer.html#grpc_proxy.balancer.LoadBalancer">[docs]</a><span class="k">class</span> <span class="nc">LoadBalancer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Base class for all load nalancer classes.</span>
@@ -244,7 +255,7 @@
 <span class="sd">        :rtype: (str, binary)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">adresses</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">StatusCode</span><span class="o">.</span><span class="n">UNAVAILABLE</span><span class="p">,</span> <span class="s2">&quot;proxy: no endpoints found&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">GrpcProxyNoHostError</span><span class="p">()</span>
 
         <span class="n">host</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adresses</span><span class="p">)</span>
 
@@ -261,8 +272,7 @@
         <span class="k">except</span> <span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">code</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">e</span></div></div>
-        
-        
+
 <div class="viewcode-block" id="PickFirst"><a class="viewcode-back" href="../../balancer.html#grpc_proxy.balancer.PickFirst">[docs]</a><span class="k">class</span> <span class="nc">PickFirst</span><span class="p">(</span><span class="n">LoadBalancer</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Implementation of pick first balancer with random host choosing.</span>
@@ -285,7 +295,7 @@
 <span class="sd">        :rtype: (str, binary)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">adresses</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">StatusCode</span><span class="o">.</span><span class="n">UNAVAILABLE</span><span class="p">,</span> <span class="s2">&quot;proxy: no endpoints found&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">GrpcProxyNoHostError</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adresses</span><span class="p">:</span>
             <span class="n">channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
