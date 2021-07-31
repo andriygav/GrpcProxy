@@ -123,21 +123,13 @@ def proxy_method(request, context, service, method, config, options):
         if config is None:
             raise GrpcProxyNoRuleError()
         
-        metadata = dict(context.invocation_metadata())
+        metadata = set(context.invocation_metadata())
 
         routing = config
-        if 'match' in config:
-            for item in config['match']:
-                is_ok = True
-                if 'headers' not in item:
-                    is_ok = False
-                else:
-                    for header in item['headers']:
-                        if header not in metadata \
-                           or item['headers'][header]['exact'] != metadata[header]:
-                            is_ok = False
-                if is_ok:
-                    routing = item
+        for item in config.get('match', []):
+            headers = {(header, item['headers'][header]['exact']) for header in item['headers']}
+            if (headers & metadata) == headers:
+                routing = item
 
         host, response = _BALANCER_NAME_TO_CLASS[routing['loadBalancer']['type']](
             routing['hosts'], options).sent(
