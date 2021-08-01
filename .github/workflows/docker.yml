@@ -40,6 +40,14 @@ jobs:
         run: |
           export TESTS=$(/bin/pwd)/tests
           docker run -v $TESTS:/tests -v /tmp:/tmp andriygav/grpc-proxy:latest /bin/bash -c "pip install -U pytest pytest-cov && pytest /tests --cov=grpc_proxy --cov-report=xml:/tmp/coverage.xml"
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v1  
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: /tmp/coverage.xml
+          flags: unittests
+          name: codecov-grpcproxy
+          fail_ci_if_error: true
   deploy:
     runs-on: ubuntu-latest
     needs: [build, test]
