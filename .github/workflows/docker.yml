@@ -38,7 +38,7 @@ jobs:
           docker load --input /tmp/image.tar
       - name: Testing
         run: |
-          echo pwd
+          pwd
           echo $PATH
         
 #           pip install -U pytest, pytest-cov
