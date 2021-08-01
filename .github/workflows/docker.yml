@@ -43,7 +43,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: andriygav/grpc-proxy
+          name: image
           path: /tmp/image.tar
   deploy:
     runs-on: ubuntu-latest
@@ -54,7 +54,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: andriygav/grpcproxy
+          name: image
           path: /tmp/image.tar
       - name: Load Docker image
         run: |
