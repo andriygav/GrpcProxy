@@ -2,20 +2,23 @@
 GrpcProxy
 #########
 
-|test| |docs| |docker|
+|build| |codecov| |docker| |docs|
 
-.. |test| image:: https://github.com/andriygav/GrpcProxy/workflows/test/badge.svg
+.. |build| image:: https://github.com/andriygav/GrpcProxy/actions/workflows/docker.yml/badge.svg?branch=master
+    :target: https://github.com/andriygav/GrpcProxy/actions/workflows/docker.yml
+    :alt: Build info
+
+.. |codecov| image:: https://img.shields.io/codecov/c/github/andriygav/GrpcProxy
     :target: https://github.com/andriygav/GrpcProxy/tree/master
-    :alt: Test status
+    :alt: Test coverage
+    
+.. |docker| image:: https://img.shields.io/docker/v/andriygav/grpc-proxy
+    :target: https://hub.docker.com/repository/docker/andriygav/grpc-proxy
+    :alt: Docker Hub Version
 
 .. |docs| image:: https://github.com/andriygav/GrpcProxy/workflows/docs/badge.svg
     :target: https://andriygav.github.io/GrpcProxy/
     :alt: Docs status
-
-    
-.. |docker| image:: https://img.shields.io/docker/v/andriygav/grpc-proxy
-    :target: https://hub.docker.com/repository/docker/andriygav/grpc-proxy
-    :alt: Docker Hub Status
 
 Basic information
 =================
