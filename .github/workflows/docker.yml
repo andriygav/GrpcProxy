@@ -38,11 +38,8 @@ jobs:
           docker load --input /tmp/image.tar
       - name: Testing
         run: |
-          pwd
-          echo $PATH
-        
-#           pip install -U pytest, pytest-cov
-#           PYTHONPATH=src/ pytest tests/ --cov=src/grpc_proxy --cov-report=xml
+          export TESTS=$(/bin/pwd)/tests
+          docker run -v $TESTS:/tests -v /tmp:/tmp andriygav/grpc-proxy:latest /bin/bash -c "pip install -U pytest pytest-cov && pytest /tests --cov=grpc_proxy --cov-report=xml:/tmp/coverage.xml"
   deploy:
     runs-on: ubuntu-latest
     needs: [build, test]
