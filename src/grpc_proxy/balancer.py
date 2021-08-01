@@ -127,8 +127,7 @@ class RandomChoice(LoadBalancer):
         
         logging.info(f'{host} request')
         try:
-            response = stub(request, metadata=metadata)
-            return host, response
+            return host, stub(request, metadata=metadata)
         except grpc.RpcError as e:
             logging.info(f'{host}: {e.code()}')
             error = e
@@ -160,8 +159,7 @@ class PickFirst(LoadBalancer):
             
             logging.info(f'{host} request')
             try:
-                response = stub(request, metadata=metadata)
-                return host, response
+                return host, stub(request, metadata=metadata)
             except grpc.RpcError as e:
                 logging.info(f'{host}: {e.code()}')
                 error = e
