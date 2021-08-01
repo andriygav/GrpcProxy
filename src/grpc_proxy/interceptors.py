@@ -52,9 +52,17 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         '''
         super(ProxyInterceptor, self).__init__()
 
+        self._metadata_unary_unary = {
+            'metadata': { 
+                'request':  'unary',
+                'response': 'unary'
+            }
+        }
+        
         self.config = dict()
         for item in setup:
             self.config[item['service']] = item
+            self.config[item['service']]['metadata'] = self._metadata_unary_unary['metadata']
 
         self.proxy_method = partial(proxy_method, options=options)
 
@@ -97,8 +105,7 @@ class ProxyInterceptor(grpc.ServerInterceptor):
                        config=config)
 
         if config is None:
-            config = {'metadata': { 'request':  'unary', 
-                                    'response': 'unary'}}
+            config = self._metadata_unary_unary
         return self._get_rpc_method_handler(**config['metadata'])(
             func, request_deserializer=None, response_serializer=None)
 
