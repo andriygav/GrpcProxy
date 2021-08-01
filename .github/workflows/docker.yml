@@ -70,10 +70,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      - name: Push to Docker Hub tag latest
+      - name: Push to Docker Hub
         uses: docker/build-push-action@v2
         with:
           push: true
           context: .
           file: Dockerfile
-          tags: andriygav/grpc-proxy:latest
+          tags:
+           - andriygav/grpc-proxy:latest
+          if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+           - ${{ steps.get_version.outputs.VERSION }}
