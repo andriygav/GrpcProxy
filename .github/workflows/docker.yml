@@ -62,9 +62,16 @@ jobs:
       - name: Load Docker image
         run: |
           docker load --input /tmp/image.tar
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      — name: Docker meta
+        id: meta
+        uses: crazy-max/ghaction-docker-meta@v2
+        with:
+          images: phparkitect/phparkitect
+          tags: |
+            type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
+            type=ref,event=tag
+          flavor: |
+            latest=false
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -73,10 +80,8 @@ jobs:
       - name: Push to Docker Hub
         uses: docker/build-push-action@v2
         with:
-          push: true
+          push: ${{ GitHub.event_name != 'pull_request' }}
           context: .
           file: Dockerfile
-          tags:
-           - andriygav/grpc-proxy:latest
-          if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-           - ${{ steps.get_version.outputs.VERSION }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
