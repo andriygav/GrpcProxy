@@ -127,7 +127,7 @@ class RandomChoice(LoadBalancer):
         
         logging.info(f'{host} request')
         try:
-            response = stub(request, metadata=metadata).result(None)
+            response = stub(request, metadata=metadata)
             return host, response
         except grpc.RpcError as e:
             logging.info(f'{host}: {e.code()}')
