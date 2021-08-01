@@ -20,7 +20,7 @@ GrpcProxy
 Basic information
 =================
 
-A simple solution for gRPC proxy with multiple hosts by peak first host to resolving.
+A simple solution for gRPC proxy with multiple hosts by pick first host to resolving. Currently supports only single packet data transfer (unary_unary grpc type).
 
 Usage
 =====
