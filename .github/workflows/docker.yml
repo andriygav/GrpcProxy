@@ -38,8 +38,7 @@ jobs:
         with:
           context: .
           dockerfile: Dockerfile
-          repository: andriygav/grpc-proxy
-          tags: latest
+          tags: andriygav/grpc-proxy:latest
           outputs: type=docker,dest=/tmp/image.tar
       - name: Upload artifact
         uses: actions/upload-artifact@v2
