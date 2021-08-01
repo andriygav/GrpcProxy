@@ -65,15 +65,15 @@ jobs:
       - name: Get the version
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       - name: Push to Docker Hub tag latest
         uses: docker/build-push-action@v2
         with:
+          push: true
           context: .
           file: Dockerfile
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-          repository: andriygav/grpc-proxy
-          add_git_labels: true
-          tags: latest
-          if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-          tag_with_ref: true
+          tags: andriygav/grpc-proxy:latest
