@@ -23,7 +23,7 @@ GrpcProxy
 Basic information
 =================
 
-A simple solution for gRPC proxy with multiple hosts by pick first host to resolving. Currently supports only single packet data transfer (unary_unary grpc type).
+A simple solution for gRPC proxy with multiple hosts by pick first host to resolving. Currently supports only single packet data transfer (unary_unary grpc type. To remove the unary_unary grpc type restriction, need to switch to golang.).
 
 Usage
 =====
