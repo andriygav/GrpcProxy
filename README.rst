@@ -12,7 +12,7 @@ GrpcProxy
     :target: https://github.com/andriygav/GrpcProxy/tree/master
     :alt: Test coverage
     
-.. |docker| image:: https://img.shields.io/docker/v/andriygav/grpc-proxy
+.. |docker| image:: https://img.shields.io/docker/v/andriygav/grpc-proxy?sort=semver
     :target: https://hub.docker.com/repository/docker/andriygav/grpc-proxy
     :alt: Docker Hub Version
 
