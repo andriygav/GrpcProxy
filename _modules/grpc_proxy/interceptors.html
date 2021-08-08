@@ -334,12 +334,14 @@
         
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">())</span>
         
-        <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">GRPC_PROXY_CONECTION</span><span class="o">.</span><span class="n">_labelnames</span><span class="p">}</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">GRPC_PROXY_CONECTION</span><span class="o">.</span><span class="n">_labelnames</span><span class="p">}</span>
         <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;grpc_service&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
         <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;grpc_method&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">method</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
-                <span class="n">labels</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                <span class="n">labels</span><span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
         <span class="n">GRPC_PROXY_CONECTION</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="o">**</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
 
         <span class="n">routing</span> <span class="o">=</span> <span class="n">config</span>
