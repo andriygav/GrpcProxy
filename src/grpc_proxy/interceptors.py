@@ -69,7 +69,7 @@ class ProxyInterceptor(grpc.ServerInterceptor):
             # add headers for prometheus
             for match in item.get('match', []):
                 for header in match.get('headers', []):
-                    labelnames += (header,)
+                    labelnames += (header.replace('-', '_'),)
 
         self.proxy_method = partial(proxy_method, options=options)
 
