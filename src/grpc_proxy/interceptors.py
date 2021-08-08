@@ -25,6 +25,7 @@ _BALANCER_NAME_TO_CLASS = {
 
 REQUEST_TIME = Summary('proxy_method_seconds', 'Time spent processing proxy')
 NUMBER_OF_PROCESSES = Gauge('proxy_method_processes', 'Time spent processing proxy')
+GRPC_PROXY_CONECTION = None
 
 class GrpcProxyNoRuleError(grpc.RpcError):
     def __init__(self):
@@ -60,11 +61,22 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         }
         
         self.config = dict()
+        labelnames = ('grpc_service', 'grpc_method',)
         for item in setup:
             self.config[item['service']] = item
             self.config[item['service']]['metadata'] = self._metadata_unary_unary['metadata']
+            
+            # add headers for prometheus
+            for match in item.get('match', []):
+                for header in item['match'].get('headers', []):
+                    labelnames += (header,)
 
         self.proxy_method = partial(proxy_method, options=options)
+
+        global GRPC_PROXY_CONECTION
+        GRPC_PROXY_CONECTION = Counter(
+            'grpc_proxy_conection', 'Number of proxy conection', 
+            labelnames=labelnames)
 
     @staticmethod
     def _get_rpc_method_handler(request, response):
@@ -144,11 +156,19 @@ def proxy_method(request, context, service, method, config, options):
     '''
     try:
         NUMBER_OF_PROCESSES.inc()
-        
+
         if config is None:
             raise GrpcProxyNoRuleError()
         
         metadata = set(context.invocation_metadata())
+        
+        labels = {label: None for label in GRPC_PROXY_CONECTION._labelnames}
+        labels['grpc_service'] = service
+        labels['grpc_method'] = method
+        for (key, value) in metadata:
+            if key in labels:
+                labels[key] = value
+        GRPC_PROXY_CONECTION.labels(**labels).inc()
 
         routing = config
         for item in config.get('match', []):
