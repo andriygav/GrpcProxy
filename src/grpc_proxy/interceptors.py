@@ -23,9 +23,10 @@ _BALANCER_NAME_TO_CLASS = {
     'random': RandomChoice
 }
 
-REQUEST_TIME = Summary('proxy_method_seconds', 'Time spent processing proxy')
-NUMBER_OF_PROCESSES = Gauge('proxy_method_processes', 'Time spent processing proxy')
-GRPC_PROXY_CONECTION = None
+REQUEST_TIME = Summary('grpc_proxy_time', 'Time spent processing proxy')
+NUMBER_OF_PROCESSES = Gauge('grpc_proxy_active_conections', 'Number of active conection')
+GRPC_PROXY_CONECTION = Counter('grpc_proxy_conections_passed', 'Total number of passed conection',
+    labelnames=('proxy_grpc_service', 'proxy_grpc_method', 'proxy_grpc_route_rule'))
 
 class GrpcProxyNoRuleError(grpc.RpcError):
     def __init__(self):
@@ -61,22 +62,11 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         }
         
         self.config = dict()
-        labelnames = ('grpc_service', 'grpc_method',)
         for item in setup:
             self.config[item['service']] = item
             self.config[item['service']]['metadata'] = self._metadata_unary_unary['metadata']
-            
-            # add headers for prometheus
-            for match in item.get('match', []):
-                for header in match.get('headers', []):
-                    labelnames += (header.replace('-', '_'),)
 
         self.proxy_method = partial(proxy_method, options=options)
-
-        global GRPC_PROXY_CONECTION
-        GRPC_PROXY_CONECTION = Counter(
-            'grpc_proxy_conection', 'Number of proxy conection', 
-            labelnames=labelnames)
 
     @staticmethod
     def _get_rpc_method_handler(request, response):
@@ -162,15 +152,8 @@ def proxy_method(request, context, service, method, config, options):
         
         metadata = set(context.invocation_metadata())
         
-        labels = {label: '' for label in GRPC_PROXY_CONECTION._labelnames}
-        labels['grpc_service'] = service
-        labels['grpc_method'] = method
-        for (key, value) in metadata:
-            if key.replace('-', '_') in labels:
-                labels[key.replace('-', '_')] = value
-
         logging.info(str(labels))
-        GRPC_PROXY_CONECTION.labels(**labels).inc()
+        
 
         routing = config
         for item in config.get('match', []):
@@ -185,6 +168,8 @@ def proxy_method(request, context, service, method, config, options):
             options, 
             config['metadata']).sent(
             request, context.invocation_metadata())
+
+        GRPC_PROXY_CONECTION.labels(service, method, routing.get('name', 'default')).inc()
 
         logging.info(f'success redirect to {host}')
         return response
