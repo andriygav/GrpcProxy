@@ -195,9 +195,10 @@
     <span class="s1">&#39;random&#39;</span><span class="p">:</span> <span class="n">RandomChoice</span>
 <span class="p">}</span>
 
-<span class="n">REQUEST_TIME</span> <span class="o">=</span> <span class="n">Summary</span><span class="p">(</span><span class="s1">&#39;proxy_method_seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;Time spent processing proxy&#39;</span><span class="p">)</span>
-<span class="n">NUMBER_OF_PROCESSES</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;proxy_method_processes&#39;</span><span class="p">,</span> <span class="s1">&#39;Time spent processing proxy&#39;</span><span class="p">)</span>
-<span class="n">GRPC_PROXY_CONECTION</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">REQUEST_TIME</span> <span class="o">=</span> <span class="n">Summary</span><span class="p">(</span><span class="s1">&#39;grpc_proxy_time&#39;</span><span class="p">,</span> <span class="s1">&#39;Time spent processing proxy&#39;</span><span class="p">)</span>
+<span class="n">NUMBER_OF_PROCESSES</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;grpc_proxy_active_conections&#39;</span><span class="p">,</span> <span class="s1">&#39;Number of active conection&#39;</span><span class="p">)</span>
+<span class="n">GRPC_PROXY_CONECTION</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;grpc_proxy_conections_passed&#39;</span><span class="p">,</span> <span class="s1">&#39;Total number of passed conection&#39;</span><span class="p">,</span>
+    <span class="n">labelnames</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;proxy_grpc_service&#39;</span><span class="p">,</span> <span class="s1">&#39;proxy_grpc_method&#39;</span><span class="p">,</span> <span class="s1">&#39;proxy_grpc_route_rule&#39;</span><span class="p">))</span>
 
 <div class="viewcode-block" id="GrpcProxyNoRuleError"><a class="viewcode-back" href="../../interceptors.html#grpc_proxy.interceptors.GrpcProxyNoRuleError">[docs]</a><span class="k">class</span> <span class="nc">GrpcProxyNoRuleError</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -233,22 +234,11 @@
         <span class="p">}</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">labelnames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;grpc_service&#39;</span><span class="p">,</span> <span class="s1">&#39;grpc_method&#39;</span><span class="p">,)</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">setup</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">item</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]][</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata_unary_unary</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span>
-            
-            <span class="c1"># add headers for prometheus</span>
-            <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;match&#39;</span><span class="p">,</span> <span class="p">[]):</span>
-                <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;headers&#39;</span><span class="p">,</span> <span class="p">[]):</span>
-                    <span class="n">labelnames</span> <span class="o">+=</span> <span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">),)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">proxy_method</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">proxy_method</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
-
-        <span class="k">global</span> <span class="n">GRPC_PROXY_CONECTION</span>
-        <span class="n">GRPC_PROXY_CONECTION</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
-            <span class="s1">&#39;grpc_proxy_conection&#39;</span><span class="p">,</span> <span class="s1">&#39;Number of proxy conection&#39;</span><span class="p">,</span> 
-            <span class="n">labelnames</span><span class="o">=</span><span class="n">labelnames</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_get_rpc_method_handler</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
@@ -334,15 +324,8 @@
         
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">())</span>
         
-        <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">GRPC_PROXY_CONECTION</span><span class="o">.</span><span class="n">_labelnames</span><span class="p">}</span>
-        <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;grpc_service&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
-        <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;grpc_method&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">method</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
-                <span class="n">labels</span><span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
-
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
-        <span class="n">GRPC_PROXY_CONECTION</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="o">**</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
+        
 
         <span class="n">routing</span> <span class="o">=</span> <span class="n">config</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;match&#39;</span><span class="p">,</span> <span class="p">[]):</span>
@@ -357,6 +340,8 @@
             <span class="n">options</span><span class="p">,</span> 
             <span class="n">config</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sent</span><span class="p">(</span>
             <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">())</span>
+
+        <span class="n">GRPC_PROXY_CONECTION</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">routing</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;success redirect to </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span>
