@@ -162,12 +162,14 @@ def proxy_method(request, context, service, method, config, options):
         
         metadata = set(context.invocation_metadata())
         
-        labels = {label: None for label in GRPC_PROXY_CONECTION._labelnames}
+        labels = {label: '' for label in GRPC_PROXY_CONECTION._labelnames}
         labels['grpc_service'] = service
         labels['grpc_method'] = method
         for (key, value) in metadata:
-            if key in labels:
-                labels[key] = value
+            if key.replace('-', '_') in labels:
+                labels[key.replace('-', '_')] = value
+
+        logging.info(str(labels))
         GRPC_PROXY_CONECTION.labels(**labels).inc()
 
         routing = config
