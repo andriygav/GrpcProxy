@@ -323,9 +323,6 @@
             <span class="k">raise</span> <span class="n">GrpcProxyNoRuleError</span><span class="p">()</span>
         
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">())</span>
-        
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
-        
 
         <span class="n">routing</span> <span class="o">=</span> <span class="n">config</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;match&#39;</span><span class="p">,</span> <span class="p">[]):</span>
