@@ -151,9 +151,6 @@ def proxy_method(request, context, service, method, config, options):
             raise GrpcProxyNoRuleError()
         
         metadata = set(context.invocation_metadata())
-        
-        logging.info(str(labels))
-        
 
         routing = config
         for item in config.get('match', []):
