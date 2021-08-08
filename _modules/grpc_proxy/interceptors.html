@@ -185,7 +185,7 @@
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">wraps</span>
 
 <span class="kn">import</span> <span class="nn">grpc</span>
-<span class="kn">from</span> <span class="nn">prometheus_client</span> <span class="kn">import</span> <span class="n">Summary</span><span class="p">,</span> <span class="n">Gauge</span>
+<span class="kn">from</span> <span class="nn">prometheus_client</span> <span class="kn">import</span> <span class="n">Summary</span><span class="p">,</span> <span class="n">Gauge</span><span class="p">,</span> <span class="n">Counter</span>
 
 <span class="kn">from</span> <span class="nn">.balancer</span> <span class="kn">import</span> <span class="n">RandomChoice</span><span class="p">,</span> <span class="n">PickFirst</span>
 
@@ -240,7 +240,7 @@
             
             <span class="c1"># add headers for prometheus</span>
             <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;match&#39;</span><span class="p">,</span> <span class="p">[]):</span>
-                <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;match&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;headers&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+                <span class="k">for</span> <span class="n">headit</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;headers&#39;</span><span class="p">,</span> <span class="p">[]):</span>
                     <span class="n">labelnames</span> <span class="o">+=</span> <span class="p">(</span><span class="n">header</span><span class="p">,)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">proxy_method</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">proxy_method</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
