@@ -13,7 +13,7 @@ import logging
 from functools import partial, wraps
 
 import grpc
-from prometheus_client import Summary, Gauge
+from prometheus_client import Summary, Gauge, Counter
 
 from .balancer import RandomChoice, PickFirst
 
@@ -68,7 +68,7 @@ class ProxyInterceptor(grpc.ServerInterceptor):
             
             # add headers for prometheus
             for match in item.get('match', []):
-                for header in item['match'].get('headers', []):
+                for headit in match.get('headers', []):
                     labelnames += (header,)
 
         self.proxy_method = partial(proxy_method, options=options)
