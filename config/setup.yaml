@@ -5,8 +5,8 @@
       someheaderkey:
         exact: someheadervalue
     hosts:
-    - address-one
-    - address-two
+    - address-one:81
+    - address-two:80
     loadBalancer:
       type: pick_first
   - name: someothername
@@ -14,11 +14,11 @@
       someheaderkey:
         exact: someotherheadervalue
     hosts:
-    - address-three
-    - address-four
+    - address-three:1824
+    - address-four:18243
     loadBalancer:
       type: random
   hosts:
-  - default-adress
+  - default-adress:1824
   loadBalancer:
     type: pick_first
