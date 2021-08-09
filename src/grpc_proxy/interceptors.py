@@ -26,7 +26,7 @@ _BALANCER_NAME_TO_CLASS = {
 REQUEST_TIME = Summary('grpc_proxy_time', 'Time spent processing proxy')
 NUMBER_OF_PROCESSES = Gauge('grpc_proxy_active_conections', 'Number of active conection')
 GRPC_PROXY_CONECTION = Counter('grpc_proxy_conections_passed', 'Total number of passed conection',
-    labelnames=('proxy_grpc_service', 'proxy_grpc_method', 'proxy_grpc_route_rule', 'proxy_grpc_host'))
+    labelnames=('proxy_grpc_service', 'proxy_grpc_method', 'proxy_grpc_route_rule', 'proxy_grpc_host', 'proxy_grpc_port'))
 
 class GrpcProxyNoRuleError(grpc.RpcError):
     def __init__(self):
@@ -165,8 +165,8 @@ def proxy_method(request, context, service, method, config, options):
             options, 
             config['metadata']).sent(
             request, context.invocation_metadata())
-
-        GRPC_PROXY_CONECTION.labels(service, method, routing.get('name', 'default'), host).inc()
+        
+        GRPC_PROXY_CONECTION.labels(service, method, routing.get('name', 'default'), *host.split(':')).inc()
 
         logging.info(f'success redirect to {host}')
         return response
