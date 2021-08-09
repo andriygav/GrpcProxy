@@ -203,8 +203,8 @@
       someheaderkey:
         exact: someheadervalue
     hosts:
-    - address-one
-    - address-two
+    - address-one:81
+    - address-two:80
     loadBalancer:
       type: pick_first
   - name: someothername
@@ -212,12 +212,12 @@
       someheaderkey:
         exact: someotherheadervalue
     hosts:
-    - address-three
-    - address-four
+    - address-three:1824
+    - address-four:18243
     loadBalancer:
       type: random
   hosts:
-  - default-adress
+  - default-adress:1824
   loadBalancer:
     type: pick_first
 </pre></div>
@@ -226,6 +226,7 @@
 <li><p>Firstly, need to specify the <cite>service</cite> for routing discovery (for example we are using <cite>example.v1.ExampleService</cite>).</p></li>
 <li><p>Secondly, need to specify headers information for specific routing (we are using key: value pairs from header such as <cite>someheaderkey</cite> and <cite>someheadervalue</cite>).</p></li>
 <li><p>Thirdly, need to specify hosts for routing and type of use it (now only <cite>pick_first</cite> and <cite>random</cite> available).</p></li>
+<li><p>Host must by specify by address and port.</p></li>
 </ul>
 </div>
 </div>
