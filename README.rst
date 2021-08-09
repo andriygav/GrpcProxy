@@ -47,8 +47,8 @@ Example of setup file
           someheaderkey:
             exact: someheadervalue
         hosts:
-        - address-one
-        - address-two
+        - address-one:81
+        - address-two:80
         loadBalancer:
           type: pick_first
       - name: someothername
@@ -56,15 +56,16 @@ Example of setup file
           someheaderkey:
             exact: someotherheadervalue
         hosts:
-        - address-three
-        - address-four
+        - address-three:1824
+        - address-four:18243
         loadBalancer:
           type: random
       hosts:
-      - default-adress
+      - default-adress:1824
       loadBalancer:
         type: pick_first
 
 - Firstly, need to specify the `service` for routing discovery (for example we are using `example.v1.ExampleService`).
 - Secondly, need to specify headers information for specific routing (we are using key: value pairs from header such as `someheaderkey` and `someheadervalue`).
 - Thirdly, need to specify hosts for routing and type of use it (now only `pick_first` and `random` available).
+- Host must by specify by address and port.
