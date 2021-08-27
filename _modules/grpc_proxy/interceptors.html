@@ -181,6 +181,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 <span class="n">__docformat__</span> <span class="o">=</span> <span class="s1">&#39;restructuredtext&#39;</span>
 
+<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">wraps</span>
 
@@ -192,13 +193,21 @@
 <span class="c1"># available balancer type</span>
 <span class="n">_BALANCER_NAME_TO_CLASS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;pick_first&#39;</span><span class="p">:</span> <span class="n">PickFirst</span><span class="p">,</span>
-    <span class="s1">&#39;random&#39;</span><span class="p">:</span> <span class="n">RandomChoice</span>
+    <span class="s1">&#39;random&#39;</span><span class="p">:</span> <span class="n">RandomChoice</span><span class="p">,</span>
+    <span class="s1">&#39;round_robin&#39;</span><span class="p">:</span> <span class="n">RandomChoice</span>
 <span class="p">}</span>
 
-<span class="n">REQUEST_TIME</span> <span class="o">=</span> <span class="n">Summary</span><span class="p">(</span><span class="s1">&#39;grpc_proxy_time&#39;</span><span class="p">,</span> <span class="s1">&#39;Time spent processing proxy&#39;</span><span class="p">)</span>
-<span class="n">NUMBER_OF_PROCESSES</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;grpc_proxy_active_conections&#39;</span><span class="p">,</span> <span class="s1">&#39;Number of active conection&#39;</span><span class="p">)</span>
-<span class="n">GRPC_PROXY_CONECTION</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;grpc_proxy_conections_passed&#39;</span><span class="p">,</span> <span class="s1">&#39;Total number of passed conection&#39;</span><span class="p">,</span>
-    <span class="n">labelnames</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;proxy_grpc_service&#39;</span><span class="p">,</span> <span class="s1">&#39;proxy_grpc_method&#39;</span><span class="p">,</span> <span class="s1">&#39;proxy_grpc_route_rule&#39;</span><span class="p">,</span> <span class="s1">&#39;proxy_grpc_host&#39;</span><span class="p">,</span> <span class="s1">&#39;proxy_grpc_port&#39;</span><span class="p">))</span>
+<span class="n">REQUEST_TIME</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span>
+    <span class="s1">&#39;grpc_proxy_time&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;Time spent processing proxy&#39;</span><span class="p">,</span>
+    <span class="n">labelnames</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;grpc_proxy_service&#39;</span><span class="p">,</span> <span class="s1">&#39;grpc_proxy_route_name&#39;</span><span class="p">,</span> <span class="s1">&#39;grpc_proxy_hostname&#39;</span><span class="p">,</span> <span class="s1">&#39;grpc_proxy_port&#39;</span><span class="p">))</span>
+<span class="n">NUMBER_OF_PROCESSES</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span>
+    <span class="s1">&#39;grpc_proxy_active_connections&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;Total number of active connections&#39;</span><span class="p">)</span>
+<span class="n">GRPC_PROXY_CONECTION</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span>
+    <span class="s1">&#39;grpc_proxy_connections_passed_backend&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;Total number of passed conection&#39;</span><span class="p">,</span>
+    <span class="n">labelnames</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;grpc_proxy_service&#39;</span><span class="p">,</span> <span class="s1">&#39;grpc_proxy_status&#39;</span><span class="p">,</span> <span class="s1">&#39;grpc_proxy_route_name&#39;</span><span class="p">,</span> <span class="s1">&#39;grpc_proxy_hostname&#39;</span><span class="p">,</span> <span class="s1">&#39;grpc_proxy_port&#39;</span><span class="p">))</span>
 
 <div class="viewcode-block" id="GrpcProxyNoRuleError"><a class="viewcode-back" href="../../interceptors.html#grpc_proxy.interceptors.GrpcProxyNoRuleError">[docs]</a><span class="k">class</span> <span class="nc">GrpcProxyNoRuleError</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -235,8 +244,9 @@
         
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">setup</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">item</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]][</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata_unary_unary</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="n">grpc</span><span class="o">-</span><span class="n">descriptions</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">service</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">service</span><span class="p">][</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata_unary_unary</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">proxy_method</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">proxy_method</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 
@@ -283,17 +293,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rpc_method_handler</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">])(</span>
             <span class="n">func</span><span class="p">,</span> <span class="n">request_deserializer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">response_serializer</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div></div>
 
-<span class="k">def</span> <span class="nf">_fixer</span><span class="p">(</span><span class="n">wrapper</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="nd">@wrapper</span>
-        <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">func</span>
-    <span class="k">return</span> <span class="n">decorator</span>
-
-<div class="viewcode-block" id="proxy_method"><a class="viewcode-back" href="../../interceptors.html#grpc_proxy.interceptors.proxy_method">[docs]</a><span class="nd">@_fixer</span><span class="p">(</span><span class="n">REQUEST_TIME</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
-<span class="k">def</span> <span class="nf">proxy_method</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+<div class="viewcode-block" id="proxy_method"><a class="viewcode-back" href="../../interceptors.html#grpc_proxy.interceptors.proxy_method">[docs]</a><span class="k">def</span> <span class="nf">proxy_method</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Prototype for gRPC proxy method.</span>
 
@@ -318,28 +318,35 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">NUMBER_OF_PROCESSES</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
-
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">GrpcProxyNoRuleError</span><span class="p">()</span>
         
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">())</span>
 
-        <span class="n">routing</span> <span class="o">=</span> <span class="n">config</span>
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;match&#39;</span><span class="p">,</span> <span class="p">[]):</span>
-            <span class="n">headers</span> <span class="o">=</span> <span class="p">{(</span><span class="n">header</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">][</span><span class="n">header</span><span class="p">][</span><span class="s1">&#39;exact&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">]}</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">headers</span> <span class="o">&amp;</span> <span class="n">metadata</span><span class="p">)</span> <span class="o">==</span> <span class="n">headers</span><span class="p">:</span>
+        <span class="n">routing</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">if</span> <span class="s1">&#39;match&#39;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                <span class="n">headers</span> <span class="o">=</span> <span class="p">{(</span><span class="n">header</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;match&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;headers&#39;</span><span class="p">][</span><span class="n">header</span><span class="p">][</span><span class="s1">&#39;exact&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">itemitem</span><span class="p">[</span><span class="s1">&#39;match&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;headers&#39;</span><span class="p">]}</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">headers</span> <span class="o">&amp;</span> <span class="n">metadata</span><span class="p">)</span> <span class="o">==</span> <span class="n">headers</span><span class="p">:</span>
+                    <span class="n">routing</span> <span class="o">=</span> <span class="n">item</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">routing</span> <span class="o">=</span> <span class="n">item</span>
+            
+        <span class="k">if</span> <span class="n">routing</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t find routing rule&#39;</span><span class="p">)</span>
 
-        <span class="n">host</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">_BALANCER_NAME_TO_CLASS</span><span class="p">[</span><span class="n">routing</span><span class="p">[</span><span class="s1">&#39;loadBalancer&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]](</span>
+        <span class="n">adresses</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;destination&#39;</span><span class="p">][</span><span class="s1">&#39;host&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;:&#39;</span><span class="o">+</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;destination&#39;</span><span class="p">][</span><span class="s1">&#39;port&#39;</span><span class="p">][</span><span class="s1">&#39;number&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">routing</span><span class="p">[</span><span class="s1">&#39;route&#39;</span><span class="p">]]</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">_BALANCER_NAME_TO_CLASS</span><span class="p">[</span><span class="n">routing</span><span class="p">[</span><span class="s1">&#39;load-balancing-type&#39;</span><span class="p">]](</span>
             <span class="n">service</span><span class="p">,</span> 
             <span class="n">method</span><span class="p">,</span> 
-            <span class="n">routing</span><span class="p">[</span><span class="s1">&#39;hosts&#39;</span><span class="p">],</span> 
+            <span class="n">adresses</span><span class="p">,</span> 
             <span class="n">options</span><span class="p">,</span> 
             <span class="n">config</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sent</span><span class="p">(</span>
             <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">invocation_metadata</span><span class="p">())</span>
         
-        <span class="n">GRPC_PROXY_CONECTION</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">routing</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">),</span> <span class="o">*</span><span class="n">host</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
-
+        <span class="n">GRPC_PROXY_CONECTION</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;OK&#39;</span><span class="p">,</span> <span class="n">routing</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="o">*</span><span class="n">host</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
+        <span class="n">REQUEST_TIME</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">routing</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="o">*</span><span class="n">host</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;success redirect to </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span>
     <span class="k">except</span> <span class="n">grpc</span><span class="o">.</span><span class="n">RpcError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
