@@ -9,6 +9,7 @@ The :mod:`grpc_proxy.interceptors` contains classes and functions:
 from __future__ import print_function
 __docformat__ = 'restructuredtext'
 
+import time
 import logging
 from functools import partial, wraps
 
@@ -20,13 +21,21 @@ from .balancer import RandomChoice, PickFirst
 # available balancer type
 _BALANCER_NAME_TO_CLASS = {
     'pick_first': PickFirst,
-    'random': RandomChoice
+    'random': RandomChoice,
+    'round_robin': RandomChoice
 }
 
-REQUEST_TIME = Summary('grpc_proxy_time', 'Time spent processing proxy')
-NUMBER_OF_PROCESSES = Gauge('grpc_proxy_active_conections', 'Number of active conection')
-GRPC_PROXY_CONECTION = Counter('grpc_proxy_conections_passed', 'Total number of passed conection',
-    labelnames=('proxy_grpc_service', 'proxy_grpc_method', 'proxy_grpc_route_rule', 'proxy_grpc_host', 'proxy_grpc_port'))
+REQUEST_TIME = Gauge(
+    'grpc_proxy_time', 
+    'Time spent processing proxy',
+    labelnames=('grpc_proxy_service', 'grpc_proxy_route_name', 'grpc_proxy_hostname', 'grpc_proxy_port'))
+NUMBER_OF_PROCESSES = Gauge(
+    'grpc_proxy_active_connections', 
+    'Total number of active connections')
+GRPC_PROXY_CONECTION = Gauge(
+    'grpc_proxy_connections_passed_backend', 
+    'Total number of passed conection',
+    labelnames=('grpc_proxy_service', 'grpc_proxy_status', 'grpc_proxy_route_name', 'grpc_proxy_hostname', 'grpc_proxy_port'))
 
 class GrpcProxyNoRuleError(grpc.RpcError):
     def __init__(self):
@@ -63,8 +72,9 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         
         self.config = dict()
         for item in setup:
-            self.config[item['service']] = item
-            self.config[item['service']]['metadata'] = self._metadata_unary_unary['metadata']
+            for service in item[grpc-descriptions]:
+                self.config[service] = item
+                self.config[service]['metadata'] = self._metadata_unary_unary['metadata']
 
         self.proxy_method = partial(proxy_method, options=options)
 
@@ -111,16 +121,6 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         return self._get_rpc_method_handler(**config['metadata'])(
             func, request_deserializer=None, response_serializer=None)
 
-def _fixer(wrapper):
-    def decorator(f):
-        @wraps(f)
-        @wrapper
-        def func(*args, **kwargs):
-            return f(*args, **kwargs)
-        return func
-    return decorator
-
-@_fixer(REQUEST_TIME.time())
 def proxy_method(request, context, service, method, config, options):
     r'''
     Prototype for gRPC proxy method.
@@ -146,28 +146,35 @@ def proxy_method(request, context, service, method, config, options):
     '''
     try:
         NUMBER_OF_PROCESSES.inc()
-
+        start_time = time.time()
         if config is None:
             raise GrpcProxyNoRuleError()
         
         metadata = set(context.invocation_metadata())
 
-        routing = config
-        for item in config.get('match', []):
-            headers = {(header, item['headers'][header]['exact']) for header in item['headers']}
-            if (headers & metadata) == headers:
+        routing = None
+        for item in config.get('http', []):
+            if 'match' in item:
+                headers = {(header, item['match'][0]['headers'][header]['exact']) for header in itemitem['match'][0]['headers']}
+                if (headers & metadata) == headers:
+                    routing = item
+            else:
                 routing = item
+            
+        if routing is None:
+            raise ValueError('Can\'t find routing rule')
 
-        host, response = _BALANCER_NAME_TO_CLASS[routing['loadBalancer']['type']](
+        adresses = [item['destination']['host']+':'+item['destination']['port']['number'] for item in routing['route']]
+        host, response = _BALANCER_NAME_TO_CLASS[routing['load-balancing-type']](
             service, 
             method, 
-            routing['hosts'], 
+            adresses, 
             options, 
             config['metadata']).sent(
             request, context.invocation_metadata())
         
-        GRPC_PROXY_CONECTION.labels(service, method, routing.get('name', 'default'), *host.split(':')).inc()
-
+        GRPC_PROXY_CONECTION.labels(service, 'OK', routing.get('name', None), *host.split(':')).inc()
+        REQUEST_TIME.labels(service, routing.get('name', None), *host.split(':')).inc(time.time()-start_time)
         logging.info(f'success redirect to {host}')
         return response
     except grpc.RpcError as e:

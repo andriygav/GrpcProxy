@@ -1,24 +1,42 @@
-- service: example.v1.ExampleService
-  match:
+- grpc-descriptions:
+  - example.v1.ExampleService
+  http:
   - name: somename
-    headers:
-      someheaderkey:
-        exact: someheadervalue
-    hosts:
-    - address-one:81
-    - address-two:80
-    loadBalancer:
-      type: pick_first
+    match:
+    - headers:
+        someheaderkey:
+          exact: someheadervalue
+    route:
+    - destination:
+        host: address-1
+        port: 
+          number: 81
+    - destination:
+        host: address-2
+        port: 
+          number: 80
+    load-balancing-type: pick_first
+    retries: 4
   - name: someothername
-    headers:
-      someheaderkey:
-        exact: someotherheadervalue
-    hosts:
-    - address-three:1824
-    - address-four:18243
-    loadBalancer:
-      type: random
-  hosts:
-  - default-adress:1824
-  loadBalancer:
-    type: pick_first
+    match:
+    - headers:
+        someheaderkey:
+          exact: someheadervalue
+    route:
+    - destination:
+        host: address-3
+        port: 
+          number: 811
+    - destination:
+        host: address-4
+        port: 
+          number: 802
+    load-balancing-type: pick_first
+    retries: 4
+  - name: default
+    route:
+      - destination:
+          host: address-5
+          port:
+            number: 6668
+    load-balancing-type: random
