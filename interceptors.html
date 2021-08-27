@@ -174,8 +174,66 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="interceptors">
-<h1>Interceptors<a class="headerlink" href="#interceptors" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-grpc_proxy.interceptors">
+<span id="interceptors"></span><h1>Interceptors<a class="headerlink" href="#module-grpc_proxy.interceptors" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="#module-grpc_proxy.interceptors" title="grpc_proxy.interceptors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">grpc_proxy.interceptors</span></code></a> contains classes and functions:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#grpc_proxy.interceptors.ProxyInterceptor" title="grpc_proxy.interceptors.ProxyInterceptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">grpc_proxy.interceptors.ProxyInterceptor</span></code></a></p></li>
+<li><p><a class="reference internal" href="#grpc_proxy.interceptors.proxy_method" title="grpc_proxy.interceptors.proxy_method"><code class="xref py py-func docutils literal notranslate"><span class="pre">grpc_proxy.interceptors.proxy_method()</span></code></a></p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_proxy.interceptors.GrpcProxyNoRuleError">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_proxy.interceptors.</span></span><span class="sig-name descname"><span class="pre">GrpcProxyNoRuleError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/interceptors.html#GrpcProxyNoRuleError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.interceptors.GrpcProxyNoRuleError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_proxy.interceptors.ProxyInterceptor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_proxy.interceptors.</span></span><span class="sig-name descname"><span class="pre">ProxyInterceptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/interceptors.html#ProxyInterceptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.interceptors.ProxyInterceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>gRPC interceptor for initialise proxy.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_proxy.interceptors.ProxyInterceptor.intercept_service">
+<span class="sig-name descname"><span class="pre">intercept_service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">continuation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler_call_details</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/interceptors.html#ProxyInterceptor.intercept_service"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.interceptors.ProxyInterceptor.intercept_service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interceptor method for generate handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>continuation</strong> (<em>function</em>) – Function for get net handler.</p></li>
+<li><p><strong>handler_call_details</strong> (<em>grpc._server._HandlerCallDetails</em>) – Channel metainformation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_proxy.interceptors.proxy_method">
+<span class="sig-prename descclassname"><span class="pre">grpc_proxy.interceptors.</span></span><span class="sig-name descname"><span class="pre">proxy_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/grpc_proxy/interceptors.html#proxy_method"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grpc_proxy.interceptors.proxy_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prototype for gRPC proxy method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>binary</em>) – Binary request without deserialisation.</p></li>
+<li><p><strong>context</strong> (<em>grpc._server._Context</em>) – A gRPC service contex. 
+For more details read 
+<a class="reference external" href="https://grpc.github.io/grpc/python/grpc.html#service-side-context">https://grpc.github.io/grpc/python/grpc.html#service-side-context</a>.</p></li>
+<li><p><strong>service</strong> (<em>str</em>) – A name of discovery service.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – A name of method in discovered service.</p></li>
+<li><p><strong>config</strong> (<em>dict</em>) – A config dictionary with all information. 
+Must contain field ‘hosts’ and ‘loadBalancer’.
+If None raise GrpcProxyNoRuleError.</p></li>
+<li><p><strong>options</strong> (<em>list</em>) – A list of parameters for gRPC channel.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Responce from the target services.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>binary</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
