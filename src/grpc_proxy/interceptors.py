@@ -155,7 +155,7 @@ def proxy_method(request, context, service, method, config, options):
         routing = None
         for item in config.get('http', []):
             if 'match' in item:
-                headers = {(header, item['match'][0]['headers'][header]['exact']) for header in itemitem['match'][0]['headers']}
+                headers = {(header, item['match'][0]['headers'][header]['exact']) for header in item['match'][0]['headers']}
                 if (headers & metadata) == headers:
                     routing = item
             else:
