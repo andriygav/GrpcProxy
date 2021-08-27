@@ -164,7 +164,7 @@ def proxy_method(request, context, service, method, config, options):
         if routing is None:
             raise ValueError('Can\'t find routing rule')
 
-        adresses = [item['destination']['host']+':'+item['destination']['port']['number'] for item in routing['route']]
+        adresses = [f'{item["destination"]["host"]}:{item["destination"]["port"]["number"]}' for item in routing['route']]
         host, response = _BALANCER_NAME_TO_CLASS[routing['load-balancing-type']](
             service, 
             method, 
