@@ -12,4 +12,4 @@ RUN pip install /app/ \
 
 COPY ./config/config.cfg /config/config.cfg
 
-CMD ["python3", "-m", "grpc_proxy.service", "/config/config.cfg", "/config/setup.yaml"]
+CMD ["python3", "-m", "grpc_proxy.service", "/config/config.cfg", "/config/proxy-config.yaml"]
