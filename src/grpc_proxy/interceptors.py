@@ -178,7 +178,7 @@ def proxy_method(request, context, service, method, config, options):
         
         GRPC_PROXY_CONECTION.labels(service, 'OK', routing.get('name', None), *host.split(':')).inc()
         REQUEST_TIME.labels(service, routing.get('name', None), *host.split(':')).inc(time.time()-start_time)
-        logging.info(f'success redirect to {host} by using routing rule {routing.get('name', None)}')
+        logging.info(f'success redirect to {host} by using routing rule {routing["name"]}')
         return response
     except grpc.RpcError as e:
         context.set_code(e.code())
