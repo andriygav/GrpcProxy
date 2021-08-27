@@ -60,7 +60,7 @@ def start():
         options=options,
         interceptors=(
             PromServerInterceptor(), 
-            ProxyInterceptor(setup, options)) 
+            ProxyInterceptor(setup['routingRules'], options)) 
     )
 
     server.add_insecure_port(config['service']['port'])
