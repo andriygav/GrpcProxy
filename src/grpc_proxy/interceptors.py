@@ -72,7 +72,7 @@ class ProxyInterceptor(grpc.ServerInterceptor):
         
         self.config = dict()
         for item in setup:
-            for service in item[grpc-descriptions]:
+            for service in item['grpc-descriptions']:
                 self.config[service] = item
                 self.config[service]['metadata'] = self._metadata_unary_unary['metadata']
 
