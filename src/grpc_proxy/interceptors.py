@@ -158,11 +158,14 @@ def proxy_method(request, context, service, method, config, options):
                 headers = {(header, item['match'][0]['headers'][header]['exact']) for header in item['match'][0]['headers']}
                 if (headers & metadata) == headers:
                     routing = item
+                    break
             else:
                 routing = item
+                break
             
         if routing is None:
             raise ValueError('Can\'t find routing rule')
+        
 
         adresses = [f'{item["destination"]["host"]}:{item["destination"]["port"]["number"]}' for item in routing['route']]
         host, response = _BALANCER_NAME_TO_CLASS[routing['load-balancing-type']](
@@ -175,7 +178,7 @@ def proxy_method(request, context, service, method, config, options):
         
         GRPC_PROXY_CONECTION.labels(service, 'OK', routing.get('name', None), *host.split(':')).inc()
         REQUEST_TIME.labels(service, routing.get('name', None), *host.split(':')).inc(time.time()-start_time)
-        logging.info(f'success redirect to {host}')
+        logging.info(f'success redirect to {host} by using routing rule {routing.get('name', None)}')
         return response
     except grpc.RpcError as e:
         context.set_code(e.code())
